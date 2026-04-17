@@ -6,3 +6,5 @@ deploy/data/
 .~lock.*
 *~
 *.tmp
+node_modules/
+public/

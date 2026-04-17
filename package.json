@@ -1,0 +1,7 @@
+{
+  "name": "rufige",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/copy-deploy.cjs"
+  }
+}
