@@ -1,1849 +1,497 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Исследование промышленных предприятий — НИУ ВШЭ 2026</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Исследование российских промышленных предприятий — 2026 | ИАПР ВШЭ</title>
+<meta name="description" content="Мониторинг состояния российских промышленных предприятий. Команда Института анализа предприятий и рынков НИУ ВШЭ. Участникам — аналитический отчёт по итогам опроса."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8}
-  .fade-in{animation:fadeIn .3s ease-in}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-  .progress-bar{transition:width .4s ease}
-  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
-  input[type=number]{-moz-appearance:textfield}
-  .radio-option:hover,.check-option:hover{background:#eef2ff}
-  .radio-option.selected,.check-option.selected{background:#e0e7ff;border-color:#6366f1}
-  .section-badge{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
-  .terminate-screen{background:linear-gradient(135deg,#fef2f2,#fee2e2)}
-  .admin-table th,.admin-table td{padding:4px 8px;border:1px solid #ddd;font-size:12px;text-align:left}
+  :root{
+    --hse-blue:#102E4A;
+    --hse-red:#C8102E;
+    --accent:#1F4E79;
+    --bg-soft:#F4F6FA;
+    --ink:#0F1A2B;
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#fff}
+  .font-serif{font-family:'PT Serif',Georgia,serif}
+  .hero-grad{
+    background:
+      radial-gradient(1000px 500px at 85% -20%, rgba(200,16,46,.10), transparent 60%),
+      radial-gradient(900px 600px at 0% 100%, rgba(31,78,121,.15), transparent 60%),
+      linear-gradient(135deg, #0B1E33 0%, #16335A 60%, #1F4E79 100%);
+  }
+  .pattern-dots{
+    background-image:radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+    background-size:18px 18px;
+  }
+  .card-hover{transition:transform .2s ease, box-shadow .2s ease}
+  .card-hover:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(15,26,43,.10)}
+  .btn-primary{background:var(--hse-red);color:#fff;font-weight:600;padding:14px 26px;border-radius:4px;display:inline-block;transition:background .2s}
+  .btn-primary:hover{background:#a50d25}
+  .btn-ghost{border:1.5px solid rgba(255,255,255,.7);color:#fff;font-weight:500;padding:13px 26px;border-radius:4px;display:inline-block;transition:all .2s}
+  .btn-ghost:hover{background:#fff;color:var(--hse-blue)}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}
+  .stat-num{font-family:'PT Serif',serif;font-weight:700;color:var(--hse-blue)}
+  .section-title{font-family:'PT Serif',serif;font-weight:700;color:var(--hse-blue);letter-spacing:-.01em}
+  .kicker{text-transform:uppercase;font-size:12px;font-weight:700;letter-spacing:.15em;color:var(--hse-red)}
+  details>summary{list-style:none;cursor:pointer}
+  details>summary::-webkit-details-marker{display:none}
+  details[open] .chev{transform:rotate(180deg)}
+  .chev{transition:transform .2s}
+  .letter-card{background:linear-gradient(180deg,#FDFDFB 0%, #F4F1EA 100%);border:1px solid #E8E2D3}
+  .seal{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#C8102E,#8B0A20);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'PT Serif',serif;font-size:22px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.3), 0 4px 12px rgba(0,0,0,.15)}
+  .ribbon{height:4px;background:linear-gradient(90deg,#102E4A 0%, #1F4E79 50%, #C8102E 100%)}
+  .team-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#1F4E79,#102E4A);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'PT Serif',serif;font-size:26px;flex-shrink:0}
+  .timeline-dot{width:14px;height:14px;border-radius:50%;background:var(--hse-red);border:3px solid #fff;box-shadow:0 0 0 2px var(--hse-red)}
 </style>
 </head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
-const {useState,useCallback,useMemo,useEffect,useRef}=React;
+<body class="antialiased">
 
-// ============================================================
-// STORAGE — ответы отправляются на сервер (save.php)
-// localStorage используется как фоллбэк при локальном тестировании
-// ============================================================
-const STORAGE_KEY = 'hse_survey_2026_responses';
-const API_BASE = 'save.php'; // PHP-бэкенд лежит рядом с index.html
+<!-- ===== Top ribbon ===== -->
+<div class="ribbon"></div>
 
-async function saveResponse(answers, otherTexts, timing, meta, totalTimeMs) {
-  const payload = { answers, otherTexts: otherTexts || {}, timing: timing || {}, meta: meta || {}, totalTimeMs: totalTimeMs || 0 };
-  try {
-    const res = await fetch(API_BASE + '?action=response', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error('Server error ' + res.status);
-    const data = await res.json();
-    console.log('Saved to server:', data.id);
-    return data;
-  } catch (e) {
-    console.warn('Server unavailable, saving to localStorage:', e.message);
-    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    existing.push({
-      id: Date.now() + '_' + Math.random().toString(36).slice(2,8),
-      submittedAt: new Date().toISOString(),
-      answers,
-      otherTexts,
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-  }
-}
-
-async function saveContact(email) {
-  try {
-    const res = await fetch(API_BASE + '?action=contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    if (!res.ok) throw new Error('Server error ' + res.status);
-    return await res.json();
-  } catch (e) {
-    console.warn('Server unavailable, saving contact to localStorage:', e.message);
-    const contacts = JSON.parse(localStorage.getItem('hse_survey_2026_contacts') || '[]');
-    contacts.push({ email, submittedAt: new Date().toISOString() });
-    localStorage.setItem('hse_survey_2026_contacts', JSON.stringify(contacts));
-  }
-}
-
-// Admin: загрузка данных с сервера
-const ADMIN_KEY = 'Hs3_Srv2026_xK9mPq4vR'; // совпадает с ключом в save.php
-
-async function fetchResponses() {
-  try {
-    const res = await fetch(API_BASE + '?action=export&key=' + ADMIN_KEY);
-    if (!res.ok) throw new Error('Server error');
-    return await res.json();
-  } catch (e) {
-    console.warn('Fallback to localStorage');
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  }
-}
-
-async function fetchContacts() {
-  try {
-    const res = await fetch(API_BASE + '?action=export_contacts&key=' + ADMIN_KEY);
-    if (!res.ok) throw new Error('Server error');
-    return await res.json();
-  } catch (e) {
-    console.warn('Fallback to localStorage');
-    return JSON.parse(localStorage.getItem('hse_survey_2026_contacts') || '[]');
-  }
-}
-
-async function fetchStats() {
-  try {
-    const res = await fetch(API_BASE + '?action=stats&key=' + ADMIN_KEY);
-    if (!res.ok) throw new Error('Server error');
-    return await res.json();
-  } catch (e) {
-    return null;
-  }
-}
-
-// ============================================================
-// SURVEY DATA
-// ============================================================
-const SURVEY_SECTIONS = [
-  {id:'meta',title:'Информация о предприятии',color:'#6366f1'},
-  {id:'screener',title:'Скринер',color:'#8b5cf6'},
-  {id:'A',title:'A. Общая информация, санкции, рынки',color:'#3b82f6'},
-  {id:'B',title:'B. Кадры',color:'#06b6d4'},
-  {id:'C',title:'C. Инвестиции, технологии',color:'#10b981'},
-  {id:'D',title:'D. Финансовое состояние',color:'#f59e0b'},
-  {id:'E',title:'E. Инновации, НИОКР',color:'#ef4444'},
-  {id:'F',title:'F. Кооперация',color:'#ec4899'},
-  {id:'G',title:'G. Внешняя торговля',color:'#8b5cf6'},
-  {id:'H',title:'H. Собственность и управление',color:'#14b8a6'},
-  {id:'J',title:'J. Бизнес-климат, власти',color:'#f97316'},
-];
-
-const QUESTIONS = [
-  // ===== META (no date — auto; no format — always online) =====
-  {
-    id:'META_REGION',section:'meta',type:'single',
-    text:'Укажите федеральный округ, в котором расположено Ваше предприятие.',
-    options:[
-      {value:1,label:'Москва'},{value:2,label:'Северо-Западный ФО'},
-      {value:3,label:'Центральный ФО (кроме Москвы)'},{value:4,label:'Южный ФО'},
-      {value:5,label:'Северо-Кавказский ФО'},{value:6,label:'Приволжский ФО'},
-      {value:7,label:'Уральский ФО'},{value:8,label:'Сибирский ФО'},
-      {value:9,label:'Дальневосточный ФО'},
-    ]
-  },
-  {
-    id:'META_CITY_TYPE',section:'meta',type:'single',
-    text:'Тип населённого пункта, где расположено предприятие',
-    options:[
-      {value:1,label:'Москва'},{value:2,label:'Областной/краевой центр'},
-      {value:3,label:'Другой город'},{value:4,label:'ПГТ/Село'},
-    ]
-  },
-  {
-    id:'META_POP',section:'meta',type:'single',
-    text:'Численность населения города/посёлка',
-    options:[
-      {value:1,label:'Более 1 миллиона чел.'},{value:2,label:'500–999 тысяч чел.'},
-      {value:3,label:'250–499 тысяч чел.'},{value:4,label:'100–249 тысяч чел.'},
-      {value:5,label:'50–99 тысяч чел.'},{value:6,label:'Менее 50 тысяч чел.'},
-      {value:7,label:'Сельский район'},
-    ]
-  },
-
-  // ===== SCREENER =====
-  {
-    id:'S01',section:'screener',type:'single',
-    text:'Какой вид деятельности (ОКВЭД) является основным для Вашего предприятия?',
-    options:[
-      {value:1,label:'Производство пищевых продуктов (ОКВЭД 10)'},
-      {value:2,label:'Производство текстильных изделий (ОКВЭД 13)'},
-      {value:3,label:'Производство одежды (ОКВЭД 14)'},
-      {value:4,label:'Производство кожи и изделий из кожи (ОКВЭД 15)'},
-      {value:5,label:'Обработка древесины и производство изделий из дерева (ОКВЭД 16)'},
-      {value:6,label:'Производство бумаги и бумажных изделий (ОКВЭД 17)'},
-      {value:7,label:'Производство кокса и нефтепродуктов (ОКВЭД 19)'},
-      {value:8,label:'Производство химических веществ и продуктов (ОКВЭД 20)'},
-      {value:9,label:'Производство лекарственных средств (ОКВЭД 21)'},
-      {value:10,label:'Производство резиновых и пластмассовых изделий (ОКВЭД 22)'},
-      {value:11,label:'Производство прочей неметаллической минеральной продукции (ОКВЭД 23)'},
-      {value:12,label:'Производство металлургическое (ОКВЭД 24)'},
-      {value:13,label:'Производство готовых металлических изделий (ОКВЭД 25)'},
-      {value:14,label:'Производство компьютеров, электронных и оптических изделий (ОКВЭД 26)'},
-      {value:15,label:'Производство электрического оборудования (ОКВЭД 27)'},
-      {value:16,label:'Производство машин и оборудования (ОКВЭД 28)'},
-      {value:17,label:'Производство автотранспортных средств (ОКВЭД 29)'},
-      {value:18,label:'Производство прочих транспортных средств (ОКВЭД 30)'},
-      {value:19,label:'Производство мебели (ОКВЭД 31)'},
-      {value:20,label:'Производство прочих готовых изделий (ОКВЭД 32)'},
-      {value:21,label:'Ремонт и монтаж машин и оборудования (ОКВЭД 33)'},
-    ],
-  },
-  {
-    id:'S02',section:'screener',type:'single',
-    text:'Охарактеризуйте основной тип продукции Вашего предприятия в 2025 г.',
-    hint:'Под основной продукцией понимается продукция, на которую приходится примерно 20% выручки и более.',
-    options:[
-      {value:1,label:'Сырьё для дальнейшей переработки'},
-      {value:2,label:'Промежуточные товары (материалы, детали, комплектующие)'},
-      {value:3,label:'Промышленное оборудование (станки, строительная техника и т.п.)'},
-      {value:4,label:'Потребительские товары длительного пользования'},
-      {value:5,label:'Потребительские товары повседневного спроса'},
-      {value:6,label:'Услуги по послепродажному обслуживанию, ремонт оборудования'},
-      {value:7,label:'Прочие бизнес-услуги'},
-      {value:8,label:'Другое (укажите)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],
-    terminateIf:v=>v===7,
-    terminateMsg:'Предприятия, основная деятельность которых — прочие бизнес-услуги, не попадают в выборку данного исследования.',
-    hasOther:8,
-  },
-  {
-    id:'S03',section:'screener',type:'single',
-    text:'Какое, примерно, количество сотрудников работает на Вашем предприятии?',
-    options:[
-      {value:1,label:'Менее 10'},
-      {value:2,label:'10–19 человек'},{value:3,label:'20–49 человек'},
-      {value:4,label:'50–99 человек'},{value:5,label:'100–249 человек'},
-      {value:6,label:'250–499 человек'},{value:7,label:'500 человек и более'},
-    ],
-    terminateIf:v=>v===1,
-    terminateMsg:'Предприятия с численностью менее 10 человек не попадают в выборку.',
-  },
-  {
-    id:'S04',section:'screener',type:'single',
-    text:'Какую должность на предприятии Вы занимаете?',
-    options:[
-      {value:1,label:'Генеральный/исполнительный директор'},
-      {value:2,label:'Заместитель директора / директор по экономике/финансам/развитию'},
-      {value:3,label:'Финансовый директор (не главный бухгалтер)'},
-      {value:4,label:'Директор/руководитель департамента/отдела/службы'},
-      {value:5,label:'Другое (укажите)'},
-    ],
-    hasOther:5,
-  },
-  {
-    id:'S05',section:'screener',type:'single',
-    text:'Укажите Ваш пол.',
-    options:[{value:1,label:'Мужской'},{value:2,label:'Женский'}]
-  },
-  {
-    id:'S06',section:'screener',type:'number',
-    text:'Сколько Вам полных лет?',
-    min:1,max:99,suffix:'лет',
-    required:true,
-    terminateIf:v=>typeof v==='number'&&v<18,
-    terminateMsg:'К сожалению, для участия в опросе необходимо быть старше 18 лет.',
-  },
-  {
-    id:'S07',section:'screener',type:'single',
-    text:'Укажите, пожалуйста, пол руководителя Вашего предприятия.',
-    showIf:a=>a.S04&&a.S04!==1,
-    options:[{value:1,label:'Мужской'},{value:2,label:'Женский'}],
-  },
-  {
-    id:'S08',section:'screener',type:'number_with_refuse',
-    text:'Укажите, пожалуйста, примерный возраст руководителя Вашего предприятия.',
-    min:18,max:99,suffix:'лет',
-    showIf:a=>a.S04&&a.S04!==1,
-    refuseOptions:[{value:98,label:'Затрудняюсь ответить'}],
-  },
-
-  // ===== SECTION A =====
-  {
-    id:'A01',section:'A',type:'number',
-    text:'В каком году было основано Ваше предприятие?',
-    hint:'Укажите год основания, включая советское время. Если предприятие регистрировалось более одного раза — год первой регистрации.',
-    min:1800,max:2026,suffix:'год',placeholder:'Например: 1995'
-  },
-  {
-    id:'A02',section:'A',type:'dual_number',
-    text:'Какой была среднесписочная численность работников Вашего предприятия?',
-    fields:[
-      {key:'2025',label:'в 2025 году',suffix:'чел.'},
-      {key:'2026',label:'в 2026 году',suffix:'чел.'},
-    ],min:1,max:999999
-  },
-  {
-    id:'A03',section:'A',type:'single',
-    text:'Оцените, какое в целом влияние оказал санкционный режим 2022–2026 гг. на деятельность Вашего предприятия?',
-    options:[
-      {value:1,label:'В целом, не оказал никакого влияния'},
-      {value:2,label:'Однозначно негативное'},
-      {value:3,label:'Неоднозначное, но скорее негативное'},
-      {value:4,label:'Плюсы и минусы примерно одинаковы'},
-      {value:5,label:'Неоднозначное, но скорее позитивное'},
-      {value:6,label:'Однозначно позитивное'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-  {
-    id:'A04',section:'A',type:'multiple',
-    text:'С какими негативными последствиями сталкивается Ваше предприятие из-за режима санкций 2022–2026 гг.?',
-    hint:'Укажите все подходящие пункты',
-    showIf:a=>[2,3,4,5].includes(a.A03),
-    options:[
-      {value:1,label:'Негативных последствий практически не было'},
-      {value:2,label:'Задержки в прохождении платежей, блокирование средств'},
-      {value:3,label:'Ограничение доступа к зарубежным кредитам'},
-      {value:4,label:'Проблемы с импортом сырья, материалов, комплектующих'},
-      {value:5,label:'Проблемы с импортом оборудования, его обслуживанием'},
-      {value:6,label:'Ограничение доступа к зарубежным технологиям'},
-      {value:7,label:'Проблемы с привлечением иностранных инвестиций'},
-      {value:8,label:'Рост рисков из-за колебаний валютного курса'},
-      {value:9,label:'Срыв сделок / разрыв отношений с зарубежными партнёрами'},
-      {value:10,label:'Сокращение спроса со стороны зарубежных потребителей'},
-      {value:11,label:'Сокращение спроса со стороны российских потребителей'},
-      {value:12,label:'Проблемы с логистикой'},
-      {value:13,label:'Рост цен на сырьё, материалы, комплектующие на внутреннем рынке'},
-      {value:14,label:'Другое (укажите)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],hasOther:14,exclusive:[1,98],
-  },
-  {
-    id:'A05',section:'A',type:'multiple',
-    text:'Что для Вашего предприятия изменилось к лучшему в связи с режимом санкций 2022–2025 гг.?',
-    hint:'Возможно несколько ответов',
-    showIf:a=>[2,3,4,5].includes(a.A03),
-    options:[
-      {value:1,label:'Увеличили долю на основных рынках'},
-      {value:2,label:'Вышли на новые рынки с существующей продукцией'},
-      {value:3,label:'Нашли перспективные ниши для нового ассортимента'},
-      {value:4,label:'Расширили бизнес за счёт приобретений других компаний'},
-      {value:5,label:'Привлекли квалифицированные кадры'},
-      {value:6,label:'Другое (укажите)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],hasOther:6,exclusive:[98],
-  },
-  {
-    id:'A06',section:'A',type:'multiple',
-    text:'Что было сделано на Вашем предприятии для адаптации к режиму международных санкций в 2023–2026 гг.?',
-    hint:'Возможно несколько ответов',
-    options:[
-      {value:1,label:'Никаких специальных действий не предпринимали'},
-      {value:2,label:'Сократили объём инвестиций'},
-      {value:3,label:'Увеличили объём инвестирования'},
-      {value:4,label:'Изменили направления инвестирования'},
-      {value:5,label:'Переориентировались на выпуск другой продукции'},
-      {value:6,label:'Перешли к производству менее сложной продукции'},
-      {value:7,label:'Сократили ассортимент продукции'},
-      {value:8,label:'Сократили часть работников'},
-      {value:9,label:'Привлекли квалифицированные кадры'},
-      {value:10,label:'Нашли новые рынки сбыта в России и/или за рубежом'},
-      {value:11,label:'Реорганизовали систему управления, включая логистику'},
-      {value:12,label:'Нашли новых российских поставщиков'},
-      {value:13,label:'Нашли новых иностранных поставщиков'},
-      {value:14,label:'Внедрили новые цифровые технологии'},
-      {value:15,label:'Оптимизировали схему расчётов с покупателями'},
-      {value:16,label:'Расширили взаимодействие с госорганами'},
-      {value:17,label:'Сократили издержки'},
-      {value:18,label:'Начали собственную разработку новых продуктов/технологий'},
-      {value:19,label:'Другое (укажите)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],hasOther:19,exclusive:[1,98],
-  },
-  {
-    id:'A07',section:'A',type:'text',
-    text:'Назовите основной продукт, который в 2025 году обеспечил наибольшую долю в выручке.',
-  },
-  {
-    id:'A08',section:'A',type:'number_with_refuse',
-    text:'Какой примерно процент от выручки в 2025 году приходился на основной продукт?',
-    min:0,max:100,suffix:'%',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'A10',section:'A',type:'multiple',
-    text:'На каких рынках работает (осуществляет поставки продукции) Ваше предприятие?',
-    hint:'Возможно несколько ответов',
-    options:[
-      {value:1,label:'Только на рынке своего региона'},
-      {value:2,label:'На рынке своего и соседних регионов'},
-      {value:3,label:'На рынке России'},
-      {value:4,label:'На рынках стран ЕАЭС (Казахстан, Белоруссия, Армения, Киргизия)'},
-      {value:5,label:'На мировом рынке (за пределами ЕАЭС)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[98],
-  },
-
-  // ===== SECTION B =====
-  {
-    id:'B01',section:'B',type:'matrix_single',
-    text:'Оцените обеспеченность Вашего предприятия работниками перечисленных категорий.',
-    hint:'Один ответ по каждой строке',
-    rows:['Неквалифицированные рабочие','Квалифицированные рабочие','Специалисты среднего звена','Специалисты высшей квалификации','Руководители подразделений','Руководители высшего звена, топ-менеджеры'],
-    columns:[{value:1,label:'Нет таких'},{value:2,label:'Дефицит'},{value:3,label:'Норма'},{value:4,label:'Избыток'},{value:98,label:'Затрудняюсь'}]
-  },
-  {
-    id:'B02',section:'B',type:'text_list',
-    text:'Назовите 3 позиции/специальности, дефицит которых ощущается наиболее остро.',
-    showIf:a=>{if(!a.B01)return false;return Object.values(a.B01).some(v=>v===2)},
-    count:3,
-    refuseOptions:[
-      {value:4,label:'Предприятие не испытывает дефицита кадров'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],
-  },
-  {
-    id:'B03',section:'B',type:'multiple',
-    text:'Имеется ли у Вашего предприятия регулярная практика обучения/переобучения/повышения квалификации сотрудников?',
-    hint:'Возможно несколько ответов',
-    options:[
-      {value:1,label:'Да, с использованием услуг внешних организаций'},
-      {value:2,label:'Да, силами самого предприятия'},
-      {value:3,label:'Нет'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[3,98],
-  },
-  {
-    id:'B04',section:'B',type:'number_with_refuse',
-    text:'Укажите примерную долю высококвалифицированных работников на конец 2025 г.',
-    hint:'Получивших качественное высшее/среднее специальное образование и имеющих большой профессиональный опыт.',
-    min:0,max:100,suffix:'%',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-
-  // ===== SECTION C =====
-  {
-    id:'C01',section:'C',type:'percentage_distribution',
-    text:'Какой примерно процент в производственных мощностях занимают машины и оборудование того или иного возраста?',
-    hint:'Сумма должна равняться 100%',
-    rows:[{key:'lt5',label:'Менее 5 лет'},{key:'5_10',label:'5–10 лет'},{key:'11_20',label:'11–20 лет'},{key:'gt20',label:'Более 20 лет'}],
-    totalCheck:100,refuseOptions:[{value:98,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'C02',section:'C',type:'dual_period_single',
-    text:'Какими в целом были инвестиции Вашего предприятия в основные фонды?',
-    hint:'Крупные инвестиции — превышающие амортизационные отчисления или 10% стоимости основного капитала.',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Инвестиций не было'},
-      {value:2,label:'Были незначительные инвестиции'},
-      {value:3,label:'Были крупные инвестиции'},
-      {value:4,label:'К нам это не относится (предприятие не существовало)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],
-  },
-  {
-    id:'C03',section:'C',type:'dual_percentage_distribution',
-    text:'Если все источники инвестиций принять за 100%, какая доля приходилась на следующие источники?',
-    hint:'Если источник отсутствует — поставьте 0.',
-    showIf:a=>{if(!a.C02)return false;const p1=a.C02.period_0,p2=a.C02.period_1;return(p1===2||p1===3)||(p2===2||p2===3)},
-    periods:['2023–2025 гг.','2026 г.'],
-    rows:[
-      {key:'own',label:'Собственные средства (прибыль, амортизация, вклады учредителей)'},
-      {key:'ru_bank',label:'Кредиты российских банков'},
-      {key:'for_bank',label:'Кредиты иностранных банков'},
-      {key:'budget',label:'Средства бюджетов всех уровней'},
-      {key:'extrabud',label:'Средства внебюджетных фондов'},
-      {key:'holding',label:'Средства холдинга (интегрированной группы)'},
-      {key:'stock',label:'Фондовый рынок (облигации, акции)'},
-      {key:'other',label:'Другое'},
-    ],totalCheck:100,refuseOptions:[{value:98,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'C04',section:'C',type:'single',
-    text:'Каков, по Вашему мнению, должен быть оптимальный уровень инвестиций по отношению к нынешнему?',
-    options:[
-      {value:1,label:'Примерно такой же'},{value:2,label:'На 25% выше'},
-      {value:3,label:'На 50% выше'},{value:4,label:'В два и более раз выше'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-  {
-    id:'C05',section:'C',type:'number_with_refuse',
-    text:'При какой ставке по кредитам Вы бы взяли банковский кредит на инвестиционные цели?',
-    min:0,max:100,suffix:'%',
-    refuseOptions:[
-      {value:2,label:'Кредитные ресурсы не рассматриваем'},
-      {value:998,label:'Затрудняюсь ответить'},
-    ],
-  },
-  {
-    id:'C06',section:'C',type:'dual_period_multiple',
-    text:'Приобретало ли Ваше предприятие машины и оборудование?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Нет, не приобретали'},
-      {value:2,label:'Да, российского производства'},
-      {value:3,label:'Да, импортные'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[1,98],
-  },
-  {
-    id:'C07',section:'C',type:'dual_percentage_distribution',
-    text:'Какая доля затрат пришлась на приобретение российских и импортных машин и оборудования?',
-    hint:'Сумма должна равняться 100%.',
-    showIf:a=>{if(!a.C06)return false;const has=p=>{const v=a.C06[p];return v&&(v.includes(2)||v.includes(3))};return has('period_0')||has('period_1')},
-    periods:['2023–2025 гг.','2026 г.'],
-    rows:[
-      {key:'russian',label:'На российские машины и оборудование'},
-      {key:'import',label:'На импортные машины и оборудование'},
-      {key:'other_inv',label:'Другие инвестиции в основной капитал'},
-    ],totalCheck:100,refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'C08',section:'C',type:'single',
-    text:'Проводит ли Ваше предприятие технологический бенчмаркинг зарубежных аналогов продукции?',
-    hint:'Бенчмаркинг — сравнительный анализ лучших технологических практик.',
-    options:[
-      {value:1,label:'Нет, не проводит'},
-      {value:2,label:'Иногда, но нерегулярно'},
-      {value:3,label:'На регулярной основе'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-  {
-    id:'C09',section:'C',type:'single',
-    text:'Оцените технологический уровень производства Вашего основного продукта.',
-    options:[
-      {value:1,label:'Соответствует лучшим зарубежным образцам'},
-      {value:2,label:'Примерно на среднем уровне иностранных конкурентов'},
-      {value:3,label:'Соответствует лучшим отечественным образцам'},
-      {value:4,label:'На среднем отечественном уровне'},
-      {value:5,label:'Ниже среднего отечественного уровня'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-
-  // ===== SECTION D =====
-  {
-    id:'D01',section:'D',type:'dual_period_single',
-    text:'Получало ли Ваше предприятие кредиты банков на инвестиционные проекты?',
-    hint:'Банковские гарантии не относятся к банковским кредитам.',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Да'},{value:2,label:'Нет'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],
-  },
-  {
-    id:'D02',section:'D',type:'multiple',
-    text:'На какие цели были получены кредиты банков?',
-    hint:'Возможно несколько ответов',
-    showIf:a=>a.D01&&(a.D01.period_0===1||a.D01.period_1===1),
-    options:[
-      {value:1,label:'На преодоление кассовых разрывов'},
-      {value:2,label:'На пополнение оборотных средств'},
-      {value:3,label:'На инвестиционные проекты'},
-      {value:4,label:'Другое (укажите)'},
-    ],hasOther:4,
-  },
-  {
-    id:'D03',section:'D',type:'dual_number',
-    text:'На какой максимальный срок Ваше предприятие получило кредит?',
-    hint:'Укажите срок в месяцах',
-    showIf:a=>a.D01&&(a.D01.period_0===1||a.D01.period_1===1),
-    fields:[
-      {key:'2023_2025',label:'Кредиты в 2023–2025 гг.',suffix:'мес.'},
-      {key:'2026',label:'Кредиты в 2026 г.',suffix:'мес.'},
-    ],min:1,max:600,
-  },
-  {
-    id:'D04',section:'D',type:'number_with_refuse',
-    text:'Какой процент в себестоимости продукции в 2025 году составили материальные затраты?',
-    hint:'Сырьё, материалы, компоненты и услуги.',
-    min:0,max:100,suffix:'%',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'D05',section:'D',type:'number_with_refuse',
-    text:'Какую долю в себестоимости составляли затраты на оплату труда (включая соц. отчисления)?',
-    hint:'Проверка: сумма с предыдущим вопросом не должна превышать 100%.',
-    min:0,max:100,suffix:'%',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-    validate:(val,answers)=>{
-      if(typeof val==='number'&&typeof answers.D04==='number'){
-        if(val+answers.D04>100)return'Сумма материальных затрат и затрат на оплату труда не может превышать 100%';
-      }return null;
-    }
-  },
-
-  // ===== SECTION E =====
-  {
-    id:'E01',section:'E',type:'dual_period_multiple',
-    text:'Какие из перечисленных мер Ваше предприятие финансировало?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Выведение на рынок новой/усовершенствованной продукции'},
-      {value:2,label:'Внедрение новой/усовершенствованной технологии'},
-      {value:3,label:'Внедрение организационных инноваций'},
-      {value:4,label:'Внедрение новых методов маркетинга'},
-      {value:5,label:'Никакие из перечисленных'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[5,98],
-  },
-  {
-    id:'E02',section:'E',type:'number_with_refuse',
-    text:'Какой процент в объёме продаж составили новые/усовершенствованные продукты (в среднем за 2023–2025 гг.)?',
-    showIf:a=>a.E01&&((a.E01.period_0&&a.E01.period_0.includes(1))||(a.E01.period_1&&a.E01.period_1.includes(1))),
-    min:0,max:100,suffix:'%',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'E03',section:'E',type:'multiple',
-    text:'Оцените уровень новизны продуктов, выведенных на рынок в последние годы.',
-    hint:'Возможно несколько ответов',
-    showIf:a=>a.E01&&((a.E01.period_0&&a.E01.period_0.includes(1))||(a.E01.period_1&&a.E01.period_1.includes(1))),
-    options:[
-      {value:1,label:'Новые для мирового рынка'},
-      {value:2,label:'Новые для российского рынка'},
-      {value:3,label:'Новые для регионального рынка'},
-      {value:4,label:'Новые только для нашего предприятия'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[98],
-  },
-  {
-    id:'E04',section:'E',type:'multiple',
-    text:'Финансировало ли Ваше предприятие НИОКР в 2023–2025 гг.?',
-    hint:'Возможно несколько ответов',
-    options:[
-      {value:1,label:'Да, финансировало собственные разработки'},
-      {value:2,label:'Да, заказывали НИОКР у внешних исполнителей'},
-      {value:3,label:'Получали результаты НИОКР из другой компании холдинга'},
-      {value:4,label:'Нет (не финансировали и не получали)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[4,98],
-  },
-  {
-    id:'E05',section:'E',type:'number_with_refuse',
-    text:'Какой процент от выручки составили расходы на НИОКР (в среднем за 2023–2025 гг.)?',
-    showIf:a=>a.E04&&(a.E04.includes(1)||a.E04.includes(2)),
-    min:0,max:100,suffix:'%',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'E06',section:'E',type:'multiple',
-    text:'Какие именно НИОКР финансирует Ваше предприятие в настоящее время?',
-    showIf:a=>a.E04&&(a.E04.includes(1)||a.E04.includes(2)||a.E04.includes(3)),
-    options:[
-      {value:1,label:'Разработка, проектирование, дизайн, прототипирование новых продуктов'},
-      {value:2,label:'Реинжиниринг продукции ведущих зарубежных фирм'},
-      {value:3,label:'Разработка новых оригинальных технологий'},
-      {value:4,label:'Другое (укажите)'},
-    ],hasOther:4,
-  },
-  {
-    id:'E07',section:'E',type:'multiple',
-    text:'У каких внешних исполнителей заказывались НИОКР в 2023–2025 гг.?',
-    showIf:a=>a.E04&&a.E04.includes(2),
-    options:[
-      {value:1,label:'НИИ государственных академий наук'},
-      {value:2,label:'Другие научные организации (ГНЦ, ведомственные институты, КБ)'},
-      {value:3,label:'Российские ВУЗы'},
-      {value:4,label:'Российские промышленные предприятия'},
-      {value:5,label:'Иные российские организации'},
-      {value:6,label:'Международные компании'},
-      {value:7,label:'Привлекаем специалистов по прямым договорам'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[98],
-  },
-  {
-    id:'E08',section:'E',type:'single',
-    text:'Как Вы оцениваете опыт взаимодействия с российскими организациями, выполняющими НИОКР?',
-    showIf:a=>a.E07&&a.E07.some(v=>[1,2,3,4,5].includes(v)),
-    options:[
-      {value:1,label:'Скорее позитивно'},{value:2,label:'Скорее негативно'},
-      {value:3,label:'Неоднозначно'},{value:4,label:'Нейтрально'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-  {
-    id:'E09',section:'E',type:'number_with_refuse',
-    text:'Сколько примерно работников занято в сфере НИОКР на Вашем предприятии?',
-    hint:'Если таких работников нет — поставьте 0.',
-    showIf:a=>a.E04&&a.E04.includes(1),
-    min:0,max:99999,suffix:'чел.',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'E10',section:'E',type:'multiple',
-    text:'Какие типы цифровых технологий используются Вашим предприятием?',
-    hint:'Возможно несколько ответов',
-    options:[
-      {value:1,label:'Облачные технологии и сервисы'},
-      {value:2,label:'Big data, предсказательная аналитика'},
-      {value:3,label:'Интернет вещей (промышленный интернет)'},
-      {value:4,label:'RFID (радиочастотная идентификация)'},
-      {value:5,label:'VR/AR (виртуальная/дополненная реальность)'},
-      {value:6,label:'Искусственный интеллект, машинное обучение'},
-      {value:7,label:'Робототехника (промышленные, сервисные, коллаборативные роботы)'},
-      {value:8,label:'Аддитивные технологии, 3D-печать'},
-      {value:9,label:'CRM — управление продажами/клиентами'},
-      {value:10,label:'ERP — планирование и управление ресурсами'},
-      {value:11,label:'SCM — управление цепочками поставок'},
-      {value:12,label:'Другое (укажите)'},
-      {value:13,label:'Не используем цифровые технологии'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],hasOther:12,exclusive:[13,98],
-  },
-  {
-    id:'E11',section:'E',type:'number',
-    text:'Сколько промышленных роботов используется на Вашем предприятии?',
-    hint:'Если нет — поставьте 0.',
-    min:0,max:99999,suffix:'шт.',
-  },
-
-  // ===== SECTION F =====
-  {
-    id:'F01',section:'F',type:'number_with_refuse',
-    text:'Каково примерное число поставщиков для производства основной продукции?',
-    min:0,max:99999,suffix:'',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'F02',section:'F',type:'number_with_refuse',
-    text:'Каково примерное число покупателей (клиентов) основной продукции?',
-    min:0,max:99999,suffix:'',
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
-  },
-  {
-    id:'F03',section:'F',type:'single',
-    text:'По какому принципу Вы устанавливаете цену на основную продукцию при прямых продажах?',
-    options:[
-      {value:1,label:'Исходя из совокупных издержек и планируемой рентабельности'},
-      {value:2,label:'Исходя из издержек на каждый вид продукции'},
-      {value:3,label:'Цены определяются рынком (спросом и предложением)'},
-      {value:4,label:'Цены регулируются основным покупателем в России'},
-      {value:5,label:'Цены регулируются основным покупателем за рубежом'},
-      {value:6,label:'Цены регулируются рекомендациями органов власти'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-  {
-    id:'F04',section:'F',type:'multiple',
-    text:'Есть ли у Вашего предприятия стратегические партнёры?',
-    hint:'Стратегические партнёры — те, кто существенно влияет на развитие бизнеса.',
-    options:[
-      {value:1,label:'Да, российские в своём регионе'},
-      {value:2,label:'Да, российские в других регионах'},
-      {value:3,label:'Да, иностранные'},
-      {value:4,label:'Нет партнёров'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[4,98],
-  },
-  {
-    id:'F05',section:'F',type:'multiple',
-    text:'В каких странах есть стратегические партнёры?',
-    showIf:a=>a.F04&&a.F04.includes(3),
-    options:[
-      {value:2,label:'Страны ЕАЭС и/или СНГ'},
-      {value:3,label:'Другие дружественные страны'},
-      {value:4,label:'Недружественные страны (вводившие санкции)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[98],
-  },
-  {
-    id:'F06',section:'F',type:'matrix_multiple',
-    text:'По каким направлениям Вы сотрудничаете со своими стратегическими партнёрами?',
-    hint:'Возможно несколько ответов в каждом столбце',
-    showIf:a=>a.F04&&a.F04.some(v=>[1,2,3].includes(v)),
-    rows:[
-      {key:'dev_product',label:'Совместная разработка новых продуктов'},
-      {key:'dev_tech',label:'Совместная разработка новых технологий'},
-      {key:'coproduction',label:'Совместное производство продукции'},
-      {key:'sales',label:'Реализация (продажа и послепродажное обслуживание)'},
-      {key:'other',label:'Другие направления'},
-    ],
-    columns:[
-      {value:'ru',label:'российские партнёры'},
-      {value:'eaeu',label:'из стран ЕАЭС/СНГ'},
-      {value:'friendly',label:'из других дружественных стран'},
-      {value:'unfriendly',label:'из недружественных стран'},
-    ],
-  },
-  {
-    id:'F07',section:'F',type:'matrix_multiple',
-    text:'Меняли ли Вы своих поставщиков из-за введения новых пакетов санкций в 2025–2026 гг.?',
-    hint:'Возможно несколько ответов в каждом столбце (2–6)',
-    rows:[
-      {key:'raw',label:'Сырьё и материалы'},
-      {key:'parts',label:'Детали, компоненты и агрегаты'},
-      {key:'machines',label:'Машины и оборудование'},
-      {key:'tech',label:'Технологии'},
-      {key:'services',label:'Услуги, в т.ч. техобслуживание и ремонт'},
-    ],
-    columns:[
-      {value:1,label:'Нет, не меняли',exclusive:true},
-      {value:2,label:'Не меняли старых, но появились новые'},
-      {value:3,label:'Меняли российских поставщиков'},
-      {value:4,label:'Меняли иностранных поставщиков'},
-      {value:98,label:'Затрудняюсь ответить',exclusive:true},
-    ],
-  },
-  {
-    id:'F08',section:'F',type:'matrix_multiple',
-    text:'Если Вы поменяли иностранных поставщиков — откуда Ваши новые поставщики по каждой категории?',
-    hint:'Возможно несколько ответов в каждом столбце',
-    showIf:a=>{
-      if(!a.F07)return false;
-      return Object.values(a.F07).some(row=>row&&typeof row==='object'&&row[4]);
-    },
-    rows:[
-      {key:'raw',label:'Сырьё и материалы'},
-      {key:'parts',label:'Детали, компоненты и агрегаты'},
-      {key:'machines',label:'Машины и оборудование'},
-      {key:'tech',label:'Технологии'},
-      {key:'services',label:'Услуги'},
-    ],
-    columns:[
-      {value:1,label:'Россия'},{value:2,label:'ЕАЭС'},
-      {value:3,label:'Европа'},{value:4,label:'Турция'},
-      {value:5,label:'Китай'},{value:6,label:'Другие азиатские'},
-      {value:7,label:'США/Канада'},{value:8,label:'Другие'},
-      {value:98,label:'З/О',exclusive:true},
-    ],
-  },
-  {
-    id:'F09',section:'F',type:'matrix_single',
-    text:'Как Вы оцениваете последствия изменений в составе поставщиков?',
-    hint:'Один ответ по каждой строке',
-    showIf:a=>{
-      if(!a.F07)return false;
-      return Object.values(a.F07).some(row=>row&&typeof row==='object'&&(row[2]||row[3]||row[4]));
-    },
-    rows:['Качество продукции','Издержки производства','Номенклатура/ассортимент'],
-    columns:[
-      {value:1,label:'Заметный рост'},{value:2,label:'Незначительный рост'},
-      {value:3,label:'Практически нет изменений'},{value:4,label:'Незначительное снижение'},
-      {value:5,label:'Значительное снижение'},{value:98,label:'З/О'},
-    ],
-  },
-  {
-    id:'F10',section:'F',type:'single',
-    text:'Есть ли у предприятия действующие экологические сертификаты?',
-    hint:'Например: «ЭКО», «БИО», ГОСТ Р ИСО 14001, Organic, FSC, EU Ecolabel.',
-    options:[
-      {value:1,label:'Нет'},{value:2,label:'Да, национальные'},
-      {value:3,label:'Международные'},{value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-
-  // ===== SECTION G =====
-  {
-    id:'G01',section:'G',type:'dual_period_multiple',
-    text:'Продавало ли Ваше предприятие продукцию/услуги за рубеж?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Да, напрямую из России'},
-      {value:2,label:'Да, через торговые фирмы/посредников'},
-      {value:3,label:'Нет'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[3,98],
-  },
-  {
-    id:'G02',section:'G',type:'single_with_text',
-    text:'Когда Ваше предприятие впервые осуществило поставку на экспорт своей продукции и/или услуг?',
-    hint:'Назовите именно год первого выхода на экспорт, даже если сейчас предприятие не экспортирует.',
-    showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
-    options:[
-      {value:1,label:'До 2021 года включительно'},
-      {value:2,label:'После 2021 г. — укажите год',hasText:true,textPlaceholder:'Укажите год'},
-      {value:98,label:'Затрудняюсь ответить'},
-      {value:99,label:'Отказ от ответа'},
-    ]
-  },
-  {
-    id:'G03',section:'G',type:'dual_period_multiple',
-    text:'Какую продукцию/услуги экспортировало Ваше предприятие в 2023–2025 гг. и в 2026 году?',
-    showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Сырьё и материалы'},
-      {value:2,label:'Детали, компоненты и агрегаты'},
-      {value:3,label:'Машины и оборудование'},
-      {value:4,label:'Иная готовая продукция'},
-      {value:5,label:'Услуги'},
-      {value:98,label:'Затрудняюсь ответить'},
-      {value:99,label:'Отказ от ответа'},
-    ],exclusive:[98,99],
-  },
-  {
-    id:'G04',section:'G',type:'dual_number_refuse',
-    text:'Какой примерно процент в выручке составили поступления от экспорта?',
-    showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
-    fields:[{key:'2025',label:'в 2025 г.',suffix:'%'},{key:'2026',label:'в 2026 г. (оценка)',suffix:'%'}],
-    min:0,max:100,
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'},{value:999,label:'Отказ от ответа'}],
-  },
-  {
-    id:'G05',section:'G',type:'dual_percentage_distribution',
-    text:'Если принять валютную выручку от экспорта за 100%, какая доля приходилась на следующие страны/регионы?',
-    hint:'Суммы по каждому столбцу должны составлять 100%. Примерная оценка.',
-    showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
-    periods:['2025 г.','2026 г. (оценка)'],
-    rows:[
-      {key:'eaeu',label:'Страны ЕАЭС (Казахстан, Белоруссия, Армения, Киргизия)'},
-      {key:'europe',label:'Европейские страны'},
-      {key:'turkey',label:'Турция'},
-      {key:'china',label:'Китай'},
-      {key:'asia',label:'Другие азиатские страны'},
-      {key:'usa_canada',label:'США и Канада'},
-      {key:'other',label:'Другие страны'},
-    ],
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'},{value:999,label:'Отказ от ответа'}],
-  },
-  {
-    id:'G06',section:'G',type:'dual_period_multiple',
-    text:'Приобретало ли Ваше предприятие импортные сырьё, материалы, компоненты или услуги для производства?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Да, напрямую за рубежом'},
-      {value:2,label:'Да, через посредников в России'},
-      {value:3,label:'Нет'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[3,98],
-  },
-  {
-    id:'G07',section:'G',type:'dual_period_multiple',
-    text:'Какую именно продукцию/услуги приобретало Ваше предприятие в 2023–2025 гг. и в 2026 г. за рубежом?',
-    showIf:a=>{if(!a.G06)return false;const h=p=>{const v=a.G06[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Сырьё, материалы'},
-      {value:2,label:'Детали, компоненты и агрегаты'},
-      {value:3,label:'Технологии (патенты, лицензии, ноу-хау и т.п.)'},
-      {value:4,label:'Услуги'},
-      {value:98,label:'Затрудняюсь ответить'},
-      {value:99,label:'Отказ от ответа'},
-    ],exclusive:[98,99],
-  },
-  {
-    id:'G08',section:'G',type:'dual_period_multiple',
-    text:'Приобретало ли Ваше предприятие импортное оборудование?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Да, напрямую за рубежом'},
-      {value:2,label:'Да, через посредников/дилеров в России'},
-      {value:3,label:'Нет'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[3,98],
-  },
-  {
-    id:'G09',section:'G',type:'dual_number_refuse',
-    text:'Если принять за 100% общий объём материальных затрат, какой процент пришёлся на приобретение иностранных продуктов и услуг?',
-    hint:'Учитывается как прямой импорт, так и через торговые фирмы/посредников в России.',
-    showIf:a=>{
-      const g6=a.G06,g8=a.G08;
-      const h=v=>v&&(v.period_0&&(v.period_0.includes(1)||v.period_0.includes(2)))||(v&&v.period_1&&(v.period_1.includes(1)||v.period_1.includes(2)));
-      return h(g6)||h(g8);
-    },
-    fields:[{key:'2025',label:'в 2025 г.',suffix:'%'},{key:'2026',label:'в 2026 г. (оценка)',suffix:'%'}],
-    min:0,max:100,
-    refuseOptions:[
-      {value:1,label:'Не приобретали иностранные продукты/услуги'},
-      {value:998,label:'Затрудняюсь ответить'},
-      {value:999,label:'Отказ от ответа'},
-    ],
-  },
-  {
-    id:'G10',section:'G',type:'dual_percentage_distribution',
-    text:'Если принять затраты на приобретение иностранных сырья, материалов, компонентов, технологий или услуг за 100%, какая доля приходилась на следующие страны/регионы?',
-    hint:'Суммы по каждому столбцу должны составлять 100%. Примерная оценка.',
-    showIf:a=>{
-      const g6=a.G06,g8=a.G08;
-      const h=v=>v&&(v.period_0&&(v.period_0.includes(1)||v.period_0.includes(2)))||(v&&v.period_1&&(v.period_1.includes(1)||v.period_1.includes(2)));
-      return h(g6)||h(g8);
-    },
-    periods:['2025 г.','2026 г.'],
-    rows:[
-      {key:'eaeu',label:'Страны ЕАЭС (Казахстан, Белоруссия, Армения, Киргизия)'},
-      {key:'europe',label:'Европейские страны'},
-      {key:'turkey',label:'Турция'},
-      {key:'china',label:'Китай'},
-      {key:'asia',label:'Другие азиатские страны'},
-      {key:'usa_canada',label:'США и Канада'},
-      {key:'other',label:'Другие страны'},
-    ],
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'},{value:999,label:'Отказ от ответа'}],
-  },
-  {
-    id:'G11',section:'G',type:'matrix_single',
-    text:'Оцените зависимость Вашего предприятия от перечисленных категорий импорта.',
-    hint:'Учитывается как прямой импорт, так и через посредников в России.',
-    rows:['Сырьё и материалы','Детали, компоненты и агрегаты','Машины и оборудование','Технологии (патенты, лицензии, ноу-хау)','Услуги, в т.ч. техобслуживание и ремонт'],
-    columns:[
-      {value:1,label:'Импорта нет'},{value:2,label:'Есть аналоги в РФ'},
-      {value:3,label:'Аналоги в дружественных странах'},{value:4,label:'Аналогов нет'},
-      {value:98,label:'Затрудняюсь'},{value:99,label:'Отказ'},
-    ]
-  },
-  {
-    id:'G12',section:'G',type:'dual_period_multiple',
-    text:'Из каких стран Ваше предприятие импортировало оборудование?',
-    showIf:a=>{
-      const g8=a.G08;
-      return g8&&((g8.period_0&&(g8.period_0.includes(1)||g8.period_0.includes(2)))||(g8.period_1&&(g8.period_1.includes(1)||g8.period_1.includes(2))));
-    },
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Импорт из стран ЕАЭС (произведённое в ЕАЭС)'},
-      {value:2,label:'Импорт из стран ЕАЭС (произведённое в других странах)'},
-      {value:3,label:'Импорт из европейских стран'},
-      {value:4,label:'Импорт из Турции'},
-      {value:5,label:'Импорт из Китая'},
-      {value:6,label:'Импорт из других азиатских стран'},
-      {value:7,label:'Импорт из США и Канады'},
-      {value:8,label:'Импорт из других стран'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[98],
-  },
-  {
-    id:'G13',section:'G',type:'dual_percentage_distribution',
-    text:'Если принять за 100% стоимость закупок иностранного оборудования, какова примерно доля отдельных стран-производителей?',
-    showIf:a=>{
-      const g8=a.G08;
-      return g8&&((g8.period_0&&(g8.period_0.includes(1)||g8.period_0.includes(2)))||(g8.period_1&&(g8.period_1.includes(1)||g8.period_1.includes(2))));
-    },
-    periods:['2023–2025 гг.','2026 г.'],
-    rows:[
-      {key:'eaeu',label:'Из стран ЕАЭС (Казахстан, Белоруссия, Армения, Киргизия)'},
-      {key:'europe',label:'Из европейских стран'},
-      {key:'turkey',label:'Из Турции'},
-      {key:'china',label:'Из Китая'},
-      {key:'asia',label:'Из других азиатских стран'},
-      {key:'usa_canada',label:'Из США и Канады'},
-      {key:'other',label:'Из других стран'},
-    ],
-    refuseOptions:[{value:98,label:'Затрудняюсь ответить'}],
-  },
-
-  // ===== SECTION H =====
-  {
-    id:'H01',section:'H',type:'single',
-    text:'Ваше предприятие является независимым или частью холдинга?',
-    options:[
-      {value:1,label:'Независимое предприятие'},
-      {value:2,label:'Головная (управляющая) компания холдинга'},
-      {value:3,label:'Дочернее в рамках холдинга'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-  {
-    id:'H02',section:'H',type:'dual_period_single',
-    text:'Происходила ли смена основных собственников?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Да'},{value:2,label:'Нет'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],
-  },
-  {
-    id:'H03',section:'H',type:'multiple',
-    text:'Какие категории собственников есть на Вашем предприятии?',
-    options:[
-      {value:1,label:'Российские частные собственники'},
-      {value:2,label:'Иностранные частные собственники'},
-      {value:3,label:'Федеральные органы власти'},
-      {value:4,label:'Региональные/местные органы власти'},
-      {value:5,label:'Российские государственные компании/банки'},
-      {value:6,label:'Другая категория (укажите)'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],hasOther:6,exclusive:[98],
-  },
-  {
-    id:'H04',section:'H',type:'dual_period_single',
-    text:'Менялся ли в 2023–2025 гг. и в 2026 г. генеральный директор/руководитель Вашего предприятия?',
-    hint:'Если Ваше предприятие в нынешнем виде было образовано после 2023 года, расскажите о том периоде, когда оно существовало.',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Да'},{value:2,label:'Нет'},
-      {value:98,label:'Затрудняюсь ответить'},{value:99,label:'Отказ от ответа'},
-    ],
-  },
-  {
-    id:'H05',section:'H',type:'single',
-    text:'Генеральный директор/руководитель является собственником или наёмным менеджером?',
-    options:[
-      {value:1,label:'Один из собственников, но не контролирует'},
-      {value:2,label:'Собственник и контролирует предприятие'},
-      {value:3,label:'Член семьи, владеющей предприятием'},
-      {value:4,label:'Наёмный менеджер «со стороны»'},
-      {value:5,label:'Наёмный менеджер, ранее работавший здесь'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-
-  // ===== SECTION J =====
-  {
-    id:'J01',section:'J',type:'dual_period_single',
-    text:'Осуществляло ли Ваше предприятие поставки по госзаказам (44-ФЗ и 223-ФЗ)?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Нет'},{value:2,label:'Да, до 5% выручки'},
-      {value:3,label:'Да, 6–10% выручки'},{value:4,label:'Да, 11–25% выручки'},
-      {value:5,label:'Да, 26–50% выручки'},{value:6,label:'Да, 51–75% выручки'},
-      {value:7,label:'Да, более 75% выручки'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],
-  },
-  {
-    id:'J02',section:'J',type:'single_with_text',
-    text:'Является ли Ваше предприятие членом какой-либо бизнес-ассоциации/союза?',
-    hint:'Если да — укажите точное название.',
-    options:[
-      {value:1,label:'Да (укажите название)'},
-      {value:2,label:'Является членом, но не помню название'},
-      {value:3,label:'Не входит ни в какие ассоциации/союзы'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],hasOther:1,
-  },
-  {
-    id:'J03',section:'J',type:'dual_period_single',
-    text:'Оказывало ли Ваше предприятие помощь региональным/местным властям в социальном развитии?',
-    hint:'Содержание соцобъектов, спонсорская помощь и т.д.',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'Нет, помощь не оказывали'},
-      {value:2,label:'Оказывали, менее 0,1% выручки'},
-      {value:3,label:'Оказывали, 0,1–0,3% выручки'},
-      {value:4,label:'Оказывали, более 0,3% выручки'},
-      {value:5,label:'Оказывали, но размер назвать затрудняюсь'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],
-  },
-  {
-    id:'J04',section:'J',type:'dual_period_multiple',
-    text:'Пользовалось ли Ваше предприятие инструментами государственной финансовой поддержки?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'От федеральных властей'},
-      {value:2,label:'От региональных властей'},
-      {value:3,label:'От местных властей'},
-      {value:4,label:'Налоговые льготы'},
-      {value:5,label:'От институтов развития (ВЭБ.РФ, ФРП, «Сколково» и др.)'},
-      {value:6,label:'Не пользовались'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[6,98],
-  },
-  {
-    id:'J05',section:'J',type:'dual_period_multiple',
-    text:'Получало ли Ваше предприятие организационную (нефинансовую) поддержку от органов власти или институтов развития?',
-    periods:['2023–2025 гг.','2026 г.'],
-    options:[
-      {value:1,label:'От федеральных властей'},{value:2,label:'От региональных властей'},
-      {value:3,label:'От местных властей'},{value:4,label:'От институтов развития'},
-      {value:5,label:'Не получало'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ],exclusive:[5,98],
-  },
-  {
-    id:'J06',section:'J',type:'matrix_single',
-    text:'Насколько вероятно, что в ближайшие 2–3 года Ваше предприятие...',
-    rows:[
-      'Окажется объектом рейдерских атак',
-      'Окажется объектом давления правоохранительных органов',
-      'Может стать банкротом',
-      'Станет объектом конфликта между собственниками',
-      'Перейдёт в собственность государства',
-    ],
-    columns:[
-      {value:1,label:'Весьма вероятно'},{value:2,label:'Маловероятно'},
-      {value:3,label:'Невероятно'},{value:98,label:'Затрудняюсь'},
-    ]
-  },
-  {
-    id:'J07',section:'J',type:'single',
-    text:'Какой примерно горизонт планирования у Вашего предприятия?',
-    options:[
-      {value:1,label:'Не более 6 месяцев'},{value:2,label:'От 6 месяцев до 1 года'},
-      {value:3,label:'От 1 до 2 лет'},{value:4,label:'От 2 до 3 лет'},
-      {value:5,label:'Более 3 лет'},
-      {value:98,label:'Затрудняюсь ответить'},
-    ]
-  },
-  {
-    id:'J08',section:'J',type:'text',
-    text:'Что, по Вашему мнению, необходимо в первую очередь для успешного ведения бизнеса в настоящее время?',
-    multiline:true,
-  },
-];
-
-// ============================================================
-// COMPONENTS (same rendering logic, cleaned up)
-// ============================================================
-function ProgressBar({current,total,sectionTitle}){
-  const pct=Math.round(current/total*100);
-  return(<div className="mb-6">
-    <div className="flex justify-between items-center mb-1">
-      <span className="text-sm text-gray-500">Вопрос {current} из {total}</span>
-      <span className="text-sm font-medium text-indigo-600">{pct}%</span>
-    </div>
-    <div className="w-full bg-gray-200 rounded-full h-2">
-      <div className="bg-indigo-500 h-2 rounded-full progress-bar" style={{width:`${pct}%`}}></div>
-    </div>
-    {/* sectionTitle hidden from respondent */}
-  </div>);
-}
-
-function SingleChoice({q,value,onChange,otherText,onOtherTextChange}){
-  // click selected option again -> unselect (fixes "Затрудняюсь ответить" trap)
-  const pick=v=>{if(value===v){onChange(null)}else{onChange(v)}};
-  return(<div className="space-y-2">{q.options.map(opt=>(
-    <div key={opt.value} className={`radio-option p-3 rounded-lg border cursor-pointer transition-all ${value===opt.value?'selected border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-      onClick={()=>pick(opt.value)}>
-      <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
-        <input type="radio" checked={value===opt.value} onChange={()=>pick(opt.value)} onClick={e=>{if(value===opt.value){e.preventDefault();onChange(null)}}} className="mr-3 text-indigo-600"/>
-        <span className={`text-sm ${opt.value>=98?'text-gray-400 italic':''}`}>{opt.label}</span>
-      </label>
-      {q.hasOther===opt.value&&value===opt.value&&(
-        <input type="text" placeholder="Укажите..." value={otherText||''} onChange={e=>onOtherTextChange(e.target.value)} onClick={e=>e.stopPropagation()}
-          className="mt-2 ml-7 w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"/>)}
-    </div>))}</div>);
-}
-
-function MultipleChoice({q,value=[],onChange,otherText,onOtherTextChange}){
-  // exclusive options (like "Затрудняюсь ответить") can be toggled off by clicking again
-  const toggle=v=>{
-    const excl=q.exclusive||[];
-    if(excl.includes(v)){
-      if(value.length===1&&value[0]===v){onChange([])}
-      else{onChange([v])}
-    } else {
-      let next=value.filter(x=>!excl.includes(x));
-      next=next.includes(v)?next.filter(x=>x!==v):[...next,v];
-      onChange(next);
-    }
-  };
-  return(<div className="space-y-2">{q.options.map(opt=>(
-    <div key={opt.value} className={`check-option p-3 rounded-lg border cursor-pointer transition-all ${value.includes(opt.value)?'selected border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-      onClick={()=>toggle(opt.value)}>
-      <label className="flex items-center cursor-pointer">
-        <input type="checkbox" checked={value.includes(opt.value)} onChange={()=>toggle(opt.value)} className="mr-3 text-indigo-600 rounded"/>
-        <span className={`text-sm ${opt.value>=98?'text-gray-400 italic':''}`}>{opt.label}</span>
-      </label>
-      {q.hasOther===opt.value&&value.includes(opt.value)&&(
-        <input type="text" placeholder="Укажите..." value={otherText||''} onChange={e=>onOtherTextChange(e.target.value)}
-          className="mt-2 ml-7 w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"/>)}
-    </div>))}</div>);
-}
-
-function NumberInput({q,value,onChange}){
-  return(<div className="flex items-center space-x-3">
-    <input type="number" value={value==null?'':value} onChange={e=>{const v=e.target.value===''?null:Number(e.target.value);onChange(v)}}
-      min={q.min} max={q.max} placeholder={q.placeholder||''}
-      className="w-52 border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
-    {q.suffix&&<span className="text-gray-500">{q.suffix}</span>}
-  </div>);
-}
-
-function NumberWithRefuse({q,value,onChange}){
-  const isRef=typeof value==='object'&&value!==null&&value.refused;
-  // Toggle: click selected refuse option again -> unlock input
-  const pickRefuse=code=>{
-    if(isRef&&value.code===code){onChange(null)}
-    else{onChange({refused:true,code})}
-  };
-  return(<div className="space-y-3">
-    <div className="flex items-center space-x-3">
-      <input type="number" value={isRef?'':(value==null?'':value)} disabled={isRef}
-        onChange={e=>{const v=e.target.value===''?null:Number(e.target.value);onChange(v)}}
-        min={q.min} max={q.max}
-        className={`w-40 border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 ${isRef?'bg-gray-100 opacity-50':''}`}/>
-      {q.suffix&&<span className="text-gray-500">{q.suffix}</span>}
-    </div>
-    {q.refuseOptions&&<div className="space-y-1 mt-2">{q.refuseOptions.map(opt=>(
-      <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm transition-all ${isRef&&value.code===opt.value?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-        onClick={()=>pickRefuse(opt.value)}>
-        <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
-          <input type="radio" checked={isRef&&value.code===opt.value} readOnly className="mr-2"
-            onClick={e=>{e.stopPropagation();pickRefuse(opt.value)}}/>
-          <span className="text-gray-400 italic">{opt.label}</span>
-        </label>
-      </div>))}</div>}
-    {isRef&&<div className="text-xs text-indigo-500 mt-1">Нажмите ещё раз на выбранный вариант, чтобы отменить.</div>}
-  </div>);
-}
-
-function TextInput({q,value,onChange}){
-  if(q.multiline)return<textarea value={value||''} onChange={e=>onChange(e.target.value)} rows={4} placeholder="Введите ответ..."
-    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>;
-  return<input type="text" value={value||''} onChange={e=>onChange(e.target.value)} placeholder="Введите ответ..."
-    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>;
-}
-
-function DualNumber({q,value={},onChange}){
-  return(<div className="space-y-4">{q.fields.map(f=>(
-    <div key={f.key} className="p-3 bg-gray-50 rounded-lg">
-      <div className="text-sm font-medium text-gray-600 mb-2">{f.label}:</div>
-      <div className="flex items-center space-x-3">
-        <input type="number" value={value[f.key]==null?'':value[f.key]}
-          onChange={e=>{const v=e.target.value===''?undefined:Number(e.target.value);onChange({...value,[f.key]:v})}}
-          min={q.min} max={q.max}
-          className="w-40 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
-        {f.suffix&&<span className="text-gray-500 text-sm">{f.suffix}</span>}
+<!-- ===== Header ===== -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-40 backdrop-blur bg-white/95">
+  <div class="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded bg-[var(--hse-blue)] text-white flex items-center justify-center font-bold font-serif text-xl">И</div>
+      <div class="leading-tight">
+        <div class="font-semibold text-[var(--hse-blue)] text-[15px]">ИАПР НИУ ВШЭ</div>
+        <div class="text-[11px] text-gray-500 uppercase tracking-wide">Институт анализа предприятий и рынков</div>
       </div>
-    </div>))}</div>);
-}
+    </div>
+    <nav class="hidden md:flex items-center gap-7 text-sm text-gray-700">
+      <a href="#about" class="hover:text-[var(--hse-red)]">О проекте</a>
+      <a href="#value" class="hover:text-[var(--hse-red)]">Что получит участник</a>
+      <a href="#how" class="hover:text-[var(--hse-red)]">Как проходит опрос</a>
+      <a href="#letters" class="hover:text-[var(--hse-red)]">Письма поддержки</a>
+      <a href="#team" class="hover:text-[var(--hse-red)]">Команда</a>
+      <a href="#faq" class="hover:text-[var(--hse-red)]">Вопросы</a>
+    </nav>
+    <a href="#participate" class="btn-primary text-sm ml-6 md:ml-8 whitespace-nowrap">Принять участие</a>
+  </div>
+</header>
 
-function DualNumberRefuse({q,value={},onChange}){
-  return(<div className="space-y-4">{q.fields.map(f=>{
-    const fVal=value[f.key];const isRef=typeof fVal==='object'&&fVal!==null&&fVal.refused;
-    const pickRefuse=code=>{
-      if(isRef&&fVal.code===code){onChange({...value,[f.key]:null})}
-      else{onChange({...value,[f.key]:{refused:true,code}})}
-    };
-    return(<div key={f.key} className="p-3 bg-gray-50 rounded-lg">
-      <div className="text-sm font-medium text-gray-600 mb-2">{f.label}</div>
-      <div className="flex items-center space-x-3">
-        <input type="number" value={isRef?'':(fVal==null?'':fVal)} disabled={isRef}
-          onChange={e=>{const v=e.target.value===''?null:Number(e.target.value);onChange({...value,[f.key]:v})}}
-          min={q.min} max={q.max}
-          className={`w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${isRef?'bg-gray-100 opacity-50':''}`}/>
-        {f.suffix&&<span className="text-gray-500 text-sm">{f.suffix}</span>}
-      </div>
-      {q.refuseOptions&&<div className="flex flex-wrap gap-2 mt-2">{q.refuseOptions.map(opt=>(
-        <button key={opt.value} className={`text-xs px-2 py-1 rounded border ${isRef&&fVal.code===opt.value?'border-indigo-400 bg-indigo-50 text-indigo-600':'border-gray-300 text-gray-400 hover:bg-gray-100'}`}
-          onClick={()=>pickRefuse(opt.value)}>{opt.label}</button>))}</div>}
-    </div>)})}</div>);
-}
-
-function MatrixSingle({q,value={},onChange}){
-  const pick=(ri,cv)=>{
-    const rowKey=q.rows[ri]&&typeof q.rows[ri]==='object'?q.rows[ri].key:`row_${ri}`;
-    const k=typeof q.rows[ri]==='object'?rowKey:`row_${ri}`;
-    if(value[k]===cv){const n={...value};delete n[k];onChange(n)}
-    else{onChange({...value,[k]:cv})}
-  };
-  const rowKeyOf=(r,ri)=>typeof r==='object'?r.key:`row_${ri}`;
-  const rowLabelOf=r=>typeof r==='object'?r.label:r;
-  return(<div className="overflow-x-auto"><table className="w-full text-sm">
-    <thead><tr className="border-b"><th className="text-left p-2 w-1/3"></th>
-      {q.columns.map(c=><th key={c.value} className="p-2 text-center text-xs font-medium text-gray-500">{c.label}</th>)}
-    </tr></thead>
-    <tbody>{q.rows.map((row,ri)=>{const rk=rowKeyOf(row,ri);return(
-      <tr key={ri} className="border-b hover:bg-gray-50">
-        <td className="p-2 text-sm">{rowLabelOf(row)}</td>
-        {q.columns.map(c=><td key={c.value} className="p-2 text-center">
-          <input type="radio" name={`${q.id}_r${ri}`} checked={value[rk]===c.value}
-            readOnly onClick={()=>pick(ri,c.value)} className="text-indigo-600 cursor-pointer"/>
-        </td>)}
-      </tr>)})}
-    </tbody></table></div>);
-}
-
-function MatrixMultiple({q,value={},onChange}){
-  // value structure: { [rowKey]: { [colValue]: boolean } }
-  const toggle=(rk,cv)=>{
-    const row=value[rk]||{};
-    const next={...row};
-    if(next[cv]){delete next[cv]}else{next[cv]=true}
-    const all={...value,[rk]:next};
-    if(Object.keys(next).length===0)delete all[rk];
-    onChange(all);
-  };
-  const rowKeyOf=(r,ri)=>typeof r==='object'?r.key:`row_${ri}`;
-  const rowLabelOf=r=>typeof r==='object'?r.label:r;
-  return(<div className="overflow-x-auto"><table className="w-full text-sm">
-    <thead><tr className="border-b"><th className="text-left p-2 w-1/3"></th>
-      {q.columns.map(c=><th key={c.value} className="p-2 text-center text-xs font-medium text-gray-500">{c.label}</th>)}
-    </tr></thead>
-    <tbody>{q.rows.map((row,ri)=>{const rk=rowKeyOf(row,ri);const rv=value[rk]||{};return(
-      <tr key={ri} className="border-b hover:bg-gray-50">
-        <td className="p-2 text-sm">{rowLabelOf(row)}</td>
-        {q.columns.map(c=><td key={c.value} className="p-2 text-center">
-          <input type="checkbox" checked={!!rv[c.value]}
-            onChange={()=>toggle(rk,c.value)} className="text-indigo-600 cursor-pointer"/>
-        </td>)}
-      </tr>)})}
-    </tbody></table></div>);
-}
-
-function DualPeriodSingle({q,value={},onChange}){
-  return(<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{q.periods.map((period,pi)=>{
-    const k=`period_${pi}`;
-    const pick=v=>{
-      if(value[k]===v){const n={...value};delete n[k];onChange(n)}
-      else{onChange({...value,[k]:v})}
-    };
-    return(
-    <div key={pi} className="p-3 bg-gray-50 rounded-lg">
-      <div className="text-sm font-medium text-gray-600 mb-2">{period}</div>
-      <div className="space-y-1">{q.options.map(opt=>(
-        <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm transition-all ${value[k]===opt.value?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-          onClick={()=>pick(opt.value)}>
-          <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
-            <input type="radio" checked={value[k]===opt.value} readOnly onClick={e=>{e.stopPropagation();pick(opt.value)}} className="mr-2 text-indigo-600"/>
-            <span className={opt.value>=98?'text-gray-400 italic':''}>{opt.label}</span>
-          </label>
-        </div>))}</div>
-    </div>)})}</div>);
-}
-
-function DualPeriodMultiple({q,value={},onChange}){
-  const toggle=(pi,v)=>{
-    const k=`period_${pi}`;const cur=value[k]||[];const excl=q.exclusive||[];let next;
-    if(excl.includes(v)){
-      // toggle off exclusive if it's already the only selected
-      if(cur.length===1&&cur[0]===v){next=[]}else{next=[v]}
-    } else {
-      next=cur.filter(x=>!excl.includes(x));
-      next=next.includes(v)?next.filter(x=>x!==v):[...next,v];
-    }
-    onChange({...value,[k]:next});
-  };
-  return(<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{q.periods.map((period,pi)=>(
-    <div key={pi} className="p-3 bg-gray-50 rounded-lg">
-      <div className="text-sm font-medium text-gray-600 mb-2">{period}</div>
-      <div className="space-y-1">{q.options.map(opt=>{const cur=value[`period_${pi}`]||[];return(
-        <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm transition-all ${cur.includes(opt.value)?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-          onClick={()=>toggle(pi,opt.value)}>
-          <label className="flex items-center cursor-pointer">
-            <input type="checkbox" checked={cur.includes(opt.value)} onChange={()=>toggle(pi,opt.value)} className="mr-2 rounded"/>
-            <span className={opt.value>=98?'text-gray-400 italic':''}>{opt.label}</span>
-          </label>
-        </div>)})}</div>
-    </div>))}</div>);
-}
-
-function PercentageDistribution({q,value={},onChange}){
-  const isRef=value._refused;
-  const vals=q.rows.map(r=>{const v=value[r.key];return(v==null||v==='')?0:Number(v)});
-  const total=vals.reduce((s,v)=>s+v,0);const ok=total===q.totalCheck;
-  return(<div className="space-y-3">
-    {!isRef&&q.rows.map(r=>(
-      <div key={r.key} className="flex items-center space-x-3">
-        <span className="text-sm text-gray-600 w-2/3">{r.label}</span>
-        <input type="number" value={value[r.key]==null?'':value[r.key]}
-          onChange={e=>{const v=e.target.value===''?undefined:Number(e.target.value);onChange({...value,[r.key]:v,_refused:false})}}
-          min={0} max={100} className="w-20 border border-gray-300 rounded px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
-        <span className="text-gray-400 text-sm">%</span>
-      </div>))}
-    {!isRef&&<div className={`text-sm font-medium p-2 rounded ${ok?'bg-green-50 text-green-700':'bg-red-50 text-red-600'}`}>
-      Итого: {total}% {ok?'':'(должно быть '+q.totalCheck+'%)'}</div>}
-    {q.refuseOptions&&<div className="flex flex-wrap gap-2 mt-2">{q.refuseOptions.map(opt=>{
-      const sel=isRef&&value._refusedCode===opt.value;
-      return(
-        <button key={opt.value} className={`text-xs px-3 py-1 rounded border ${sel?'border-indigo-400 bg-indigo-50 text-indigo-600':'border-gray-300 text-gray-400 hover:bg-gray-100'}`}
-          onClick={()=>{if(sel){onChange({})}else{onChange({_refused:true,_refusedCode:opt.value})}}}>{opt.label}</button>)
-    })}</div>}
-  </div>);
-}
-
-function DualPercentageDistribution({q,value={},onChange}){
-  return(<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{q.periods.map((period,pi)=>{
-    const pK=`period_${pi}`;const pVal=value[pK]||{};const isRef=pVal._refused;
-    const vals=q.rows.map(r=>{const v=pVal[r.key];return(v==null||v==='')?0:Number(v)});
-    const total=vals.reduce((s,v)=>s+v,0);const ok=total===q.totalCheck;
-    return(<div key={pi} className="p-3 bg-gray-50 rounded-lg">
-      <div className="text-sm font-medium text-gray-600 mb-2">{period}</div>
-      {!isRef&&q.rows.map(r=>(
-        <div key={r.key} className="flex items-center space-x-2 mb-1">
-          <span className="text-xs text-gray-600 flex-1">{r.label}</span>
-          <input type="number" value={pVal[r.key]==null?'':pVal[r.key]}
-            onChange={e=>{const v=e.target.value===''?undefined:Number(e.target.value);onChange({...value,[pK]:{...pVal,[r.key]:v,_refused:false}})}}
-            min={0} max={100} className="w-16 border border-gray-300 rounded px-1 py-1 text-center text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"/>
-          <span className="text-gray-400 text-xs">%</span>
-        </div>))}
-      {!isRef&&<div className={`text-xs font-medium p-1 rounded mt-1 ${ok?'bg-green-50 text-green-700':'bg-red-50 text-red-600'}`}>Итого: {total}%</div>}
-      {q.refuseOptions&&<div className="flex flex-wrap gap-1 mt-2">{q.refuseOptions.map(opt=>{
-        const sel=isRef&&pVal._refusedCode===opt.value;
-        return(
-          <button key={opt.value} className={`text-xs px-2 py-0.5 rounded border ${sel?'border-indigo-400 bg-indigo-50 text-indigo-600':'border-gray-300 text-gray-400'}`}
-            onClick={()=>{
-              if(sel){onChange({...value,[pK]:{}})}
-              else{onChange({...value,[pK]:{_refused:true,_refusedCode:opt.value}})}
-            }}>{opt.label}</button>)
-      })}</div>}
-    </div>)})}</div>);
-}
-
-function TextList({q,value={},onChange}){
-  const isRef=value._refused;
-  return(<div className="space-y-3">
-    {!isRef&&Array.from({length:q.count},(_,i)=>(
-      <div key={i} className="flex items-center space-x-3">
-        <span className="text-sm text-gray-500 w-6">{i+1}.</span>
-        <input type="text" value={value[`item_${i}`]||''} onChange={e=>onChange({...value,[`item_${i}`]:e.target.value,_refused:false})}
-          placeholder="Укажите позицию/специальность..."
-          className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
-      </div>))}
-    {q.refuseOptions&&<div className="space-y-1 mt-2">{q.refuseOptions.map(opt=>{
-      const sel=isRef&&value._refusedCode===opt.value;
-      const pick=()=>{if(sel){onChange({})}else{onChange({_refused:true,_refusedCode:opt.value})}};
-      return(
-      <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm ${sel?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-        onClick={pick}>
-        <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
-          <input type="radio" checked={sel} readOnly onClick={e=>{e.stopPropagation();pick()}} className="mr-2"/>
-          <span className="text-gray-400 italic">{opt.label}</span>
-        </label>
-      </div>)
-    })}</div>}
-  </div>);
-}
-
-function QuestionRenderer({question:q,answers,setAnswer,otherTexts,setOtherText}){
-  const val=answers[q.id],ot=otherTexts[q.id];
-  const onChange=v=>setAnswer(q.id,v),onOt=t=>setOtherText(q.id,t);
-  const map={
-    single:()=><SingleChoice q={q} value={val} onChange={onChange} otherText={ot} onOtherTextChange={onOt}/>,
-    single_with_text:()=><SingleChoice q={q} value={val} onChange={onChange} otherText={ot} onOtherTextChange={onOt}/>,
-    multiple:()=><MultipleChoice q={q} value={val} onChange={onChange} otherText={ot} onOtherTextChange={onOt}/>,
-    number:()=><NumberInput q={q} value={val} onChange={onChange}/>,
-    number_with_refuse:()=><NumberWithRefuse q={q} value={val} onChange={onChange}/>,
-    text:()=><TextInput q={q} value={val} onChange={onChange}/>,
-    date:()=>null,
-    dual_number:()=><DualNumber q={q} value={val} onChange={onChange}/>,
-    dual_number_refuse:()=><DualNumberRefuse q={q} value={val} onChange={onChange}/>,
-    matrix_single:()=><MatrixSingle q={q} value={val} onChange={onChange}/>,
-    matrix_multiple:()=><MatrixMultiple q={q} value={val} onChange={onChange}/>,
-    dual_period_single:()=><DualPeriodSingle q={q} value={val} onChange={onChange}/>,
-    dual_period_multiple:()=><DualPeriodMultiple q={q} value={val} onChange={onChange}/>,
-    percentage_distribution:()=><PercentageDistribution q={q} value={val} onChange={onChange}/>,
-    dual_percentage_distribution:()=><DualPercentageDistribution q={q} value={val} onChange={onChange}/>,
-    text_list:()=><TextList q={q} value={val} onChange={onChange}/>,
-  };
-  return(map[q.type]||(() =><div className="text-red-500">Unknown: {q.type}</div>))();
-}
-
-// ============================================================
-// ADMIN PANEL — accessible via #admin
-// ============================================================
-function AdminPanel(){
-  const [responses,setResponses]=useState([]);
-  const [contacts,setContacts]=useState([]);
-  const [stats,setStats]=useState(null);
-  const [loading,setLoading]=useState(true);
-
-  const loadData=async()=>{
-    setLoading(true);
-    const [r,c,s]=await Promise.all([fetchResponses(),fetchContacts(),fetchStats()]);
-    setResponses(r||[]);setContacts(c||[]);setStats(s);setLoading(false);
-  };
-  useEffect(()=>{loadData()},[]);
-
-  const refresh=()=>loadData();
-  const exportAll=()=>{
-    const data=JSON.stringify(responses,null,2);
-    const blob=new Blob(['\ufeff'+data],{type:'application/json'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');
-    a.href=url;a.download=`survey_export_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  };
-  const exportCsv=()=>{
-    if(responses.length===0)return;
-    const allKeys=new Set();responses.forEach(r=>Object.keys(r.answers).forEach(k=>allKeys.add(k)));
-    const keys=Array.from(allKeys).sort();
-    let csv='id;submittedAt;'+keys.join(';')+'\n';
-    responses.forEach(r=>{
-      const row=[r.id,r.submittedAt,...keys.map(k=>{const v=r.answers[k];return typeof v==='object'?JSON.stringify(v):String(v??'')})];
-      csv+=row.map(c=>String(c).replace(/;/g,',')).join(';')+'\n';
-    });
-    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');
-    a.href=url;a.download=`survey_export_${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  };
-
-  return(
-    <div className="min-h-screen p-6 max-w-6xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
+<!-- ===== Hero ===== -->
+<section class="hero-grad text-white relative overflow-hidden">
+  <div class="absolute inset-0 pattern-dots opacity-40"></div>
+  <div class="max-w-7xl mx-auto px-5 py-20 md:py-28 relative">
+    <div class="grid md:grid-cols-12 gap-10 items-center">
+      <div class="md:col-span-7">
+        <div class="flex flex-wrap gap-2 mb-6">
+          <span class="chip">Волна 2026</span>
+          <span class="chip">НИУ ВШЭ</span>
+          <span class="chip">регулярное обследование с 2005&nbsp;г.</span>
+        </div>
+        <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.08] font-bold mb-6">
+          Исследование российских промышленных предприятий
+        </h1>
+        <p class="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed">
+          Регулярное обследование ИАПР НИУ ВШЭ. Голос промышленности в аналитике, которая используется при подготовке докладов для профильных министерств и ведомств.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="#participate" class="btn-primary">Принять участие в опросе</a>
+          <a href="#value" class="btn-ghost">Что получит компания</a>
+        </div>
+        <div class="mt-10 grid grid-cols-2 gap-6 max-w-md">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Панель администратора</h1>
-            <p className="text-sm text-gray-500">Собрано ответов: <strong>{responses.length}</strong>{stats&&<span> (сервер: {stats.responses} ответов, {stats.contacts} контактов)</span>}</p>
+            <div class="stat-num text-3xl text-white">20+</div>
+            <div class="text-xs text-white/70 mt-1 uppercase tracking-wider">лет регулярных обследований</div>
           </div>
-          <a href="#" className="text-sm text-indigo-600 hover:underline">&#8592; К анкете</a>
-        </div>
-        {loading&&<p className="text-center text-gray-400 py-4">Загрузка данных с сервера...</p>}
-        <div className="flex gap-3 mb-6">
-          <button onClick={refresh} className="px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200">Обновить</button>
-          <button onClick={exportAll} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">Экспорт JSON</button>
-          <button onClick={exportCsv} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">Экспорт CSV</button>
-        </div>
-        {responses.length===0?<p className="text-gray-400 text-center py-12">Пока нет собранных ответов.</p>:
-        <div className="overflow-x-auto">
-          <table className="admin-table w-full"><thead><tr className="bg-gray-50">
-            <th>#</th><th>Дата</th><th>Регион</th><th>Сотрудники</th><th>ОКВЭД</th><th>Детали</th>
-          </tr></thead><tbody>{responses.map((r,i)=>(
-            <tr key={r.id} className="hover:bg-gray-50">
-              <td>{i+1}</td>
-              <td>{new Date(r.submittedAt).toLocaleString('ru')}</td>
-              <td>{r.answers.META_REGION||'—'}</td>
-              <td>{r.answers.S03||'—'}</td>
-              <td>{r.answers.S01||'—'}</td>
-              <td><details><summary className="cursor-pointer text-indigo-600 text-xs">Показать</summary>
-                <pre className="text-xs mt-1 p-2 bg-gray-50 rounded max-h-40 overflow-auto">{JSON.stringify(r.answers,null,1)}</pre>
-              </details></td>
-            </tr>))}</tbody></table>
-        </div>}
-
-        {contacts.length>0&&(
-        <div className="mt-8 pt-6 border-t">
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">Контакты для получения результатов ({contacts.length})</h3>
-          <div className="space-y-1">{contacts.map((c,i)=>(
-            <div key={i} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
-              <span>{c.email}</span>
-              <span className="text-xs text-gray-400">{new Date(c.submittedAt).toLocaleString('ru')}</span>
-            </div>))}
-          </div>
-        </div>)}
-      </div>
-    </div>);
-}
-
-// ============================================================
-// MAIN APP
-// ============================================================
-function CompletionScreen(){
-  const [contactEmail,setContactEmail]=useState('');
-  const [contactSent,setContactSent]=useState(false);
-  const [sending,setSending]=useState(false);
-  const sendContactHandler=async()=>{
-    if(!contactEmail.trim()||sending)return;
-    setSending(true);
-    await saveContact(contactEmail.trim());
-    setSending(false);
-    setContactSent(true);
-  };
-  return(
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-xl bg-white rounded-2xl shadow-lg p-8 text-center">
-        <div className="text-5xl mb-4">&#9989;</div>
-        <h2 className="text-2xl font-bold text-green-700 mb-3">Спасибо за участие!</h2>
-        <p className="text-gray-600 mb-6">Ваши ответы сохранены. Благодарим за участие в исследовании! Ваше мнение очень ценно для нас.</p>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 text-left">
-          <p className="text-sm text-gray-700 mb-3">Если вы хотите узнать результаты опроса, оставьте, пожалуйста, свои контактные данные. <span className="font-medium text-gray-800">Контактные данные не будут привязаны к заполненной анкете.</span></p>
-          {!contactSent?(
-            <div className="flex gap-2">
-              <input type="email" value={contactEmail} onChange={e=>setContactEmail(e.target.value)}
-                placeholder="Ваш e-mail" className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
-              <button onClick={sendContactHandler} disabled={sending} className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50">{sending?'Отправка...':'Отправить'}</button>
-            </div>
-          ):(
-            <div className="text-sm text-green-700 font-medium p-2 bg-green-50 rounded-lg">Спасибо! Мы свяжемся с вами, когда результаты будут готовы.</div>
-          )}
-        </div>
-      </div>
-    </div>);
-}
-
-function ConsentScreen({onAccept}){
-  return(
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-2xl bg-white rounded-2xl shadow-lg p-8">
-        <div className="text-center mb-6">
-          <div className="inline-block px-4 py-1 rounded-full section-badge text-white text-xs mb-3">НИУ ВШЭ — ИАПР</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Исследование промышленных предприятий</h1>
-          <p className="text-sm text-gray-500">Институт анализа предприятий и рынков, 2026</p>
-        </div>
-
-        <div className="prose prose-sm text-gray-600 space-y-3 mb-6" style={{fontSize:'14px',lineHeight:'1.6'}}>
-          <p>Институт анализа предприятий и рынков НИУ «Высшая школа экономики» проводит опрос руководителей предприятий обрабатывающей промышленности во всех регионах России, посвящённый оценке конкурентоспособности промышленных предприятий в условиях экономических санкций и необходимости обеспечения технологического суверенитета российской экономики.</p>
-          <p>Подобные исследования проводились в 2005, 2009, 2014, 2018 и 2022 годах.</p>
-          <p>Ваше мнение как эксперта в своей отрасли даст возможность выработать меры поддержки предприятий российской промышленности в целях создания условий для их устойчивого роста на внутреннем и внешнем рынках.</p>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-            <h3 className="font-semibold text-gray-800 mb-2" style={{fontSize:'14px'}}>Информированное согласие на участие в исследовании</h3>
-            <ul className="space-y-1 text-gray-600" style={{fontSize:'13px'}}>
-              <li>&#8226; Участие в опросе является <strong>добровольным</strong>. Вы можете прекратить заполнение в любой момент.</li>
-              <li>&#8226; Опрос полностью <strong>анонимен</strong>. Мы не собираем персональные данные, позволяющие идентифицировать Вас или Ваше предприятие.</li>
-              <li>&#8226; Результаты используются <strong>исключительно в научных целях</strong> и публикуются только в обобщённом виде.</li>
-              <li>&#8226; Примерное время заполнения: <strong>25–35 минут</strong>.</li>
-              <li>&#8226; Исследование проводится в соответствии с этическими стандартами НИУ ВШЭ.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <button onClick={onAccept}
-            className="px-8 py-3 bg-indigo-600 text-white rounded-xl text-base font-medium hover:bg-indigo-700 transition shadow-md">
-            Я согласен(а) участвовать — начать опрос
-          </button>
-          <p className="text-xs text-gray-400 mt-3">Нажимая кнопку, вы подтверждаете, что ознакомились с условиями участия.</p>
-        </div>
-      </div>
-    </div>);
-}
-
-function SurveyApp(){
-  const [consented,setConsented]=useState(false);
-  const [answers,setAnswers]=useState({});
-  const [otherTexts,setOtherTexts]=useState({});
-  const [currentIdx,setCurrentIdx]=useState(0);
-  const [terminated,setTerminated]=useState(null);
-  const [completed,setCompleted]=useState(false);
-  const [validationErr,setValidationErr]=useState(null);
-  const topRef=useRef(null);
-
-  // --- Timing & Meta ---
-  const surveyStartRef=useRef(null);
-  const qEnterRef=useRef(null);
-  const timingRef=useRef({});
-  const metaRef=useRef(null);
-
-  const collectMeta=()=>({
-    ua:navigator.userAgent,
-    platform:navigator.platform||'',
-    lang:navigator.language||'',
-    langs:navigator.languages?[...navigator.languages]:[],
-    screen:[screen.width,screen.height],
-    viewport:[window.innerWidth,window.innerHeight],
-    dpr:window.devicePixelRatio||1,
-    touch:'ontouchstart'in window,
-    tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
-    tzOff:new Date().getTimezoneOffset(),
-    connection:navigator.connection?{type:navigator.connection.effectiveType,downlink:navigator.connection.downlink}:null,
-    cookiesEnabled:navigator.cookieEnabled,
-    pdfSupport:navigator.pdfViewerEnabled??null,
-    cores:navigator.hardwareConcurrency||null,
-    memory:navigator.deviceMemory||null,
-  });
-
-  const recordQTime=useCallback(()=>{
-    if(currentQ&&qEnterRef.current){
-      const qId=currentQ.id;
-      const elapsed=Date.now()-qEnterRef.current;
-      if(!timingRef.current[qId])timingRef.current[qId]=0;
-      timingRef.current[qId]+=elapsed;
-    }
-    qEnterRef.current=Date.now();
-  },[currentQ]);
-
-  const visibleQuestions=useMemo(()=>QUESTIONS.filter(q=>!q.showIf||q.showIf(answers)),[answers]);
-  const currentQ=visibleQuestions[currentIdx];
-  const currentSection=currentQ?SURVEY_SECTIONS.find(s=>s.id===currentQ.section):null;
-
-  const setAnswer=useCallback((id,val)=>{setAnswers(p=>({...p,[id]:val}));setValidationErr(null)},[]);
-  const setOtherTextCb=useCallback((id,t)=>{setOtherTexts(p=>({...p,[id]:t}))},[]);
-  const scrollTop=()=>{if(topRef.current)topRef.current.scrollIntoView({behavior:'smooth'})};
-
-  const [submitting,setSubmitting]=useState(false);
-  const goNext=async()=>{
-    if(!currentQ||submitting)return;
-    recordQTime();
-    // Required question must have an answer
-    if(currentQ.required){
-      const val=answers[currentQ.id];
-      const isEmpty=val==null||val===''||(Array.isArray(val)&&val.length===0)||(typeof val==='object'&&!Array.isArray(val)&&Object.keys(val).length===0);
-      if(isEmpty){setValidationErr('Пожалуйста, ответьте на этот вопрос — он обязателен для продолжения.');return}
-    }
-    if(currentQ.terminateIf){
-      const val=answers[currentQ.id];
-      if(currentQ.terminateIf(val)){setTerminated(currentQ.terminateMsg||'Интервью завершено.');return}
-    }
-    if(currentQ.validate){const err=currentQ.validate(answers[currentQ.id],answers);if(err){setValidationErr(err);return}}
-    // Validate percentage_distribution: sum must equal totalCheck (or refused)
-    if(currentQ.type==='percentage_distribution'&&currentQ.totalCheck){
-      const val=answers[currentQ.id];
-      if(!val||!val._refused){
-        const vals=currentQ.rows.map(r=>{const v=val?.[r.key];return(v==null||v==='')?0:Number(v)});
-        const total=vals.reduce((s,v)=>s+v,0);
-        if(total!==currentQ.totalCheck){setValidationErr(`Сумма должна равняться ${currentQ.totalCheck}%. Сейчас: ${total}%. Если затрудняетесь — выберите соответствующий вариант ниже.`);return}
-      }
-    }
-    // Validate dual_percentage_distribution: each period sum must equal totalCheck (or refused)
-    if(currentQ.type==='dual_percentage_distribution'&&currentQ.totalCheck){
-      const val=answers[currentQ.id]||{};
-      for(let pi=0;pi<(currentQ.periods||[]).length;pi++){
-        const pK=`period_${pi}`;const pVal=val[pK]||{};
-        if(!pVal._refused){
-          const vals=currentQ.rows.map(r=>{const v=pVal[r.key];return(v==null||v==='')?0:Number(v)});
-          const total=vals.reduce((s,v)=>s+v,0);
-          if(total!==currentQ.totalCheck){setValidationErr(`${currentQ.periods[pi]}: сумма должна равняться ${currentQ.totalCheck}%. Сейчас: ${total}%.`);return}
-        }
-      }
-    }
-    if(currentIdx<visibleQuestions.length-1){setCurrentIdx(currentIdx+1);setValidationErr(null);scrollTop()}
-    else{
-      setSubmitting(true);
-      const finalAnswers={...answers,_autoDate:new Date().toISOString(),_format:'online'};
-      const totalMs=surveyStartRef.current?Date.now()-surveyStartRef.current:0;
-      await saveResponse(finalAnswers,otherTexts,timingRef.current,metaRef.current,totalMs);
-      setSubmitting(false);
-      setCompleted(true);
-    }
-  };
-  const goPrev=()=>{recordQTime();if(currentIdx>0){setCurrentIdx(currentIdx-1);setValidationErr(null);scrollTop()}};
-  const restart=()=>{setAnswers({});setOtherTexts({});setCurrentIdx(0);setTerminated(null);setCompleted(false);setValidationErr(null);setConsented(false)};
-
-  if(!consented)return<ConsentScreen onAccept={()=>{surveyStartRef.current=Date.now();qEnterRef.current=Date.now();metaRef.current=collectMeta();setConsented(true)}}/>;
-
-  if(terminated)return(
-    <div className="terminate-screen max-w-xl mx-auto mt-20 p-8 rounded-2xl border border-red-200 text-center">
-      <div className="text-5xl mb-4">&#9888;&#65039;</div>
-      <h2 className="text-xl font-bold text-red-700 mb-3">Опрос завершён</h2>
-      <p className="text-gray-600 mb-6">{terminated}</p>
-      <button onClick={restart} className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Начать заново</button>
-    </div>);
-
-  if(completed)return(<CompletionScreen/>);
-
-  if(!currentQ)return null;
-
-  return(
-    <div className="min-h-screen pb-20">
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-bold text-gray-800">Исследование промышленных предприятий</h1>
-              <p className="text-xs text-gray-400">НИУ ВШЭ — ИАПР, 2026</p>
-            </div>
-            {/* section badge hidden from respondent */}
+          <div>
+            <div class="stat-num text-3xl text-white">2026</div>
+            <div class="text-xs text-white/70 mt-1 uppercase tracking-wider">новая волна</div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 pt-6" ref={topRef}>
-        <ProgressBar current={currentIdx+1} total={visibleQuestions.length}/>
+      <div class="md:col-span-5">
+        <div class="bg-white rounded-lg p-6 text-[var(--ink)] shadow-2xl">
+          <div class="kicker mb-3">Главное преимущество участия</div>
+          <h3 class="font-serif text-2xl font-bold text-[var(--hse-blue)] mb-3">Аналитический отчёт — заранее</h3>
+          <p class="text-sm text-gray-700 mb-5 leading-relaxed">
+            Каждое участвующее предприятие первым получает итоговый отчёт по волне 2026 — с отраслевыми срезами и сравнениями, которых нет в открытом доступе.
+          </p>
+          <a href="#participate" class="btn-primary w-full text-center">Заполнить анкету</a>
+          <div class="text-xs text-gray-500 mt-3 text-center">≈ 35–45 минут · можно прерываться</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
-          {/* question ID hidden from respondent */}
-          <h2 className="text-lg font-semibold text-gray-800 mb-2 leading-snug">{currentQ.text}</h2>
-          {currentQ.hint&&<p className="text-sm text-gray-400 mb-4 italic">{currentQ.hint}</p>}
-          <div className="mt-4">
-            <QuestionRenderer question={currentQ} answers={answers} setAnswer={setAnswer} otherTexts={otherTexts} setOtherText={setOtherTextCb}/>
-          </div>
-          {validationErr&&<div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{validationErr}</div>}
+<!-- ===== Partners bar ===== -->
+<section class="bg-[var(--bg-soft)] border-y border-gray-200">
+  <div class="max-w-7xl mx-auto px-5 py-6">
+    <div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm text-gray-500">
+      <span class="uppercase text-xs tracking-widest text-gray-400">При поддержке</span>
+      <span class="font-semibold text-gray-700">НИУ ВШЭ</span>
+      <span class="text-gray-300">·</span>
+      <span class="font-semibold text-gray-700">Минэкономразвития РФ</span>
+      <span class="text-gray-300">·</span>
+      <span class="font-semibold text-gray-700">Банк России</span>
+      <span class="text-gray-300">·</span>
+      <span class="font-semibold text-gray-700">РСПП</span>
+      <span class="text-gray-300">·</span>
+      <span class="font-semibold text-gray-700">ВЭБ.РФ</span>
+    </div>
+  </div>
+</section>
 
-          <div className="flex justify-between items-center mt-8 pt-4 border-t">
-            <button onClick={goPrev} disabled={currentIdx===0}
-              className={`px-5 py-2 rounded-lg text-sm font-medium transition ${currentIdx===0?'text-gray-300 cursor-not-allowed':'text-gray-600 hover:bg-gray-100 border border-gray-200'}`}>
-              &#8592; Назад</button>
-            <button onClick={goNext} disabled={submitting}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition shadow-sm disabled:opacity-50">
-              {submitting?'Сохранение...':(currentIdx===visibleQuestions.length-1?'Завершить':'Далее')} {!submitting&&'\u2192'}</button>
+<!-- ===== About ===== -->
+<section id="about" class="py-20">
+  <div class="max-w-7xl mx-auto px-5">
+    <div class="grid md:grid-cols-12 gap-10">
+      <div class="md:col-span-5">
+        <div class="kicker mb-3">О проекте</div>
+        <h2 class="section-title text-3xl md:text-4xl mb-4">Регулярное обследование российской обрабатывающей промышленности</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          С 2005 года Институт анализа предприятий и рынков НИУ ВШЭ проводит регулярные обследования обрабатывающей промышленности России. Полученные данные позволяют отслеживать изменения в состоянии предприятий на длительном горизонте — через разные экономические циклы и изменения внешних условий.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+          Результаты публикуются в ведущих научных журналах — «Вопросах экономики», «Российском журнале менеджмента» и других — и используются при подготовке докладов для профильных министерств и ведомств.
+        </p>
+      </div>
+      <div class="md:col-span-7 grid grid-cols-2 gap-4">
+        <div class="p-6 rounded-lg bg-white border border-gray-200 card-hover">
+          <div class="stat-num text-4xl mb-1">84</div>
+          <div class="text-sm text-gray-600">вопроса в анкете волны 2026</div>
+        </div>
+        <div class="p-6 rounded-lg bg-white border border-gray-200 card-hover">
+          <div class="stat-num text-4xl mb-1">10</div>
+          <div class="text-sm text-gray-600">тематических блоков — от инвестиций до управления</div>
+        </div>
+        <div class="p-6 rounded-lg bg-white border border-gray-200 card-hover">
+          <div class="stat-num text-4xl mb-1">2005</div>
+          <div class="text-sm text-gray-600">год начала регулярных обследований</div>
+        </div>
+        <div class="p-6 rounded-lg bg-white border border-gray-200 card-hover">
+          <div class="stat-num text-4xl mb-1">100%</div>
+          <div class="text-sm text-gray-600">анонимность: данные публикуются только агрегированно</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Value proposition ===== -->
+<section id="value" class="py-20 bg-[var(--bg-soft)]">
+  <div class="max-w-7xl mx-auto px-5">
+    <div class="max-w-3xl mb-14">
+      <div class="kicker mb-3">Что получит компания</div>
+      <h2 class="section-title text-3xl md:text-4xl mb-4">Мы ценим Ваше время — и возвращаем его результатом</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Участие в опросе занимает 35–45 минут, но даёт доступ к аналитике, которая стоит на порядок больше — по содержанию и по времени её публичного появления.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white p-7 rounded-lg border border-gray-200 card-hover">
+        <div class="w-11 h-11 rounded-full bg-[var(--hse-red)]/10 text-[var(--hse-red)] flex items-center justify-center font-bold mb-4">01</div>
+        <h3 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Ранний доступ к отчёту</h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          Аналитический отчёт по итогам волны 2026 — в числе первых, до публичной презентации результатов.
+        </p>
+      </div>
+      <div class="bg-white p-7 rounded-lg border border-gray-200 card-hover">
+        <div class="w-11 h-11 rounded-full bg-[var(--hse-red)]/10 text-[var(--hse-red)] flex items-center justify-center font-bold mb-4">02</div>
+        <h3 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Отраслевые срезы</h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          Сравнения по отраслям, размерам и регионам: инвестиции, экспорт, кадры, бизнес-климат.
+        </p>
+      </div>
+      <div class="bg-white p-7 rounded-lg border border-gray-200 card-hover">
+        <div class="w-11 h-11 rounded-full bg-[var(--hse-red)]/10 text-[var(--hse-red)] flex items-center justify-center font-bold mb-4">03</div>
+        <h3 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Обсуждение с исследователями</h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          Приглашение на закрытую сессию обсуждения результатов с авторами исследования — возможность задать вопросы лично.
+        </p>
+      </div>
+      <div class="bg-white p-7 rounded-lg border border-gray-200 card-hover">
+        <div class="w-11 h-11 rounded-full bg-[var(--hse-red)]/10 text-[var(--hse-red)] flex items-center justify-center font-bold mb-4">04</div>
+        <h3 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Голос в повестке</h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          Данные попадают в доклады для профильных министерств и ведомств. Ваши ответы формируют повестку, а не остаются в папке.
+        </p>
+      </div>
+      <div class="bg-white p-7 rounded-lg border border-gray-200 card-hover">
+        <div class="w-11 h-11 rounded-full bg-[var(--hse-red)]/10 text-[var(--hse-red)] flex items-center justify-center font-bold mb-4">05</div>
+        <h3 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Полная анонимность</h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          Ни один респондент не идентифицируется в публикациях. Данные хранятся обезличенно; в отчётах — только агрегированные распределения.
+        </p>
+      </div>
+      <div class="bg-white p-7 rounded-lg border border-gray-200 card-hover">
+        <div class="w-11 h-11 rounded-full bg-[var(--hse-red)]/10 text-[var(--hse-red)] flex items-center justify-center font-bold mb-4">06</div>
+        <h3 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Удобный формат</h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          Анкета заполняется онлайн, можно прерываться и возвращаться — прогресс сохраняется автоматически.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== How it works / Timeline ===== -->
+<section id="how" class="py-20">
+  <div class="max-w-5xl mx-auto px-5">
+    <div class="max-w-3xl mb-12">
+      <div class="kicker mb-3">Как проходит опрос</div>
+      <h2 class="section-title text-3xl md:text-4xl mb-4">Четыре шага от заполнения до отчёта</h2>
+    </div>
+    <div class="relative pl-10">
+      <div class="absolute left-2 top-2 bottom-2 w-px bg-gray-300"></div>
+      <div class="space-y-10">
+        <div class="relative">
+          <div class="absolute -left-10 top-1 timeline-dot"></div>
+          <div class="kicker mb-1">Шаг 1</div>
+          <h4 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Вы заполняете анкету</h4>
+          <p class="text-gray-700 text-[15px] leading-relaxed">Онлайн-форма на 84 вопроса — о кадрах, инвестициях, экспорте, управлении и бизнес-климате. 35–45 минут. Разрешено прерываться — прогресс сохраняется.</p>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-10 top-1 timeline-dot"></div>
+          <div class="kicker mb-1">Шаг 2</div>
+          <h4 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Мы проверяем и агрегируем</h4>
+          <p class="text-gray-700 text-[15px] leading-relaxed">Команда ИАПР верифицирует ответы, обезличивает их и объединяет в общий массив вместе с ответами других участников волны.</p>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-10 top-1 timeline-dot"></div>
+          <div class="kicker mb-1">Шаг 3</div>
+          <h4 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Вы получаете отчёт</h4>
+          <p class="text-gray-700 text-[15px] leading-relaxed">Отчёт приходит на контактный email, указанный при заполнении, — раньше, чем появится в открытом доступе.</p>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-10 top-1 timeline-dot"></div>
+          <div class="kicker mb-1">Шаг 4</div>
+          <h4 class="font-serif text-xl font-bold text-[var(--hse-blue)] mb-2">Приглашение на презентацию</h4>
+          <p class="text-gray-700 text-[15px] leading-relaxed">Закрытая сессия обсуждения результатов с авторами исследования.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Letters of Support ===== -->
+<section id="letters" class="py-20 bg-[var(--bg-soft)]">
+  <div class="max-w-7xl mx-auto px-5">
+    <div class="max-w-3xl mb-12">
+      <div class="kicker mb-3">Письма поддержки</div>
+      <h2 class="section-title text-3xl md:text-4xl mb-4">Исследование поддержали</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Официальные письма поддержки, направленные в адрес НИУ ВШЭ в связи с проведением волны 2026.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+
+      <!-- Минэкономразвития -->
+      <div class="letter-card rounded-lg p-6 card-hover">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="seal">М</div>
+          <div>
+            <div class="font-semibold text-[var(--hse-blue)] leading-tight">Министерство экономического развития Российской Федерации</div>
+            <div class="text-xs text-gray-500 mt-1">Письмо поддержки</div>
           </div>
         </div>
-
-        {/* section navigation removed — internal labels not shown to respondents */}
+        <a href="/assets/letters/minek.pdf" target="_blank" rel="noopener" class="text-sm font-semibold text-[var(--hse-red)] hover:underline">Открыть PDF →</a>
       </div>
-    </div>);
-}
 
-// ============================================================
-// ROUTER: #admin shows admin panel, otherwise shows survey
-// ============================================================
-function App(){
-  const [page,setPage]=useState(window.location.hash);
-  useEffect(()=>{const h=()=>setPage(window.location.hash);window.addEventListener('hashchange',h);return()=>window.removeEventListener('hashchange',h)},[]);
-  if(page.startsWith('#admin')){
-    const key=page.includes('=')?page.slice(page.indexOf('=')+1):'';
-    if(key===ADMIN_KEY)return<AdminPanel/>;
-    return(<div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
-        <div className="text-5xl mb-4">🔒</div>
-        <h2 className="text-xl font-bold text-red-600 mb-2">Доступ запрещён</h2>
-        <p className="text-gray-500 mb-4">Неверный или отсутствующий ключ администратора.</p>
-        <a href="#" className="text-indigo-600 hover:underline">← Вернуться к анкете</a>
+      <!-- Банк России -->
+      <div class="letter-card rounded-lg p-6 card-hover">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="seal">Б</div>
+          <div>
+            <div class="font-semibold text-[var(--hse-blue)] leading-tight">Банк России</div>
+            <div class="text-xs text-gray-500 mt-1">Письмо поддержки</div>
+          </div>
+        </div>
+        <a href="/assets/letters/cbr.pdf" target="_blank" rel="noopener" class="text-sm font-semibold text-[var(--hse-red)] hover:underline">Открыть PDF →</a>
       </div>
-    </div>);
-  }
-  return<SurveyApp/>;
-}
 
-ReactDOM.render(<App/>,document.getElementById('root'));
-</script>
+      <!-- РСПП -->
+      <div class="letter-card rounded-lg p-6 card-hover">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="seal">Р</div>
+          <div>
+            <div class="font-semibold text-[var(--hse-blue)] leading-tight">Российский союз промышленников и предпринимателей (РСПП)</div>
+            <div class="text-xs text-gray-500 mt-1">Письмо № 1646-07</div>
+          </div>
+        </div>
+        <a href="/assets/letters/rspp.pdf" target="_blank" rel="noopener" class="text-sm font-semibold text-[var(--hse-red)] hover:underline">Открыть PDF →</a>
+      </div>
+
+      <!-- ВЭБ.РФ -->
+      <div class="letter-card rounded-lg p-6 card-hover">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="seal">В</div>
+          <div>
+            <div class="font-semibold text-[var(--hse-blue)] leading-tight">ВЭБ.РФ</div>
+            <div class="text-xs text-gray-500 mt-1">Письмо поддержки</div>
+          </div>
+        </div>
+        <a href="/assets/letters/veb.pdf" target="_blank" rel="noopener" class="text-sm font-semibold text-[var(--hse-red)] hover:underline">Открыть PDF →</a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== Team ===== -->
+<section id="team" class="py-20">
+  <div class="max-w-7xl mx-auto px-5">
+    <div class="max-w-3xl mb-12">
+      <div class="kicker mb-3">Команда</div>
+      <h2 class="section-title text-3xl md:text-4xl mb-4">Кто проводит исследование</h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="flex gap-4 items-start p-5 rounded-lg bg-white border border-gray-200 card-hover">
+        <div class="team-avatar">ВГ</div>
+        <div>
+          <div class="font-semibold text-[var(--hse-blue)]">Голикова Виктория Валерьевна</div>
+          <div class="text-xs text-[var(--hse-red)] font-semibold uppercase tracking-wide mb-1">Руководитель проекта, в.&nbsp;н.&nbsp;с.</div>
+          <div class="text-sm text-gray-600">Ведущий научный сотрудник ИАПР НИУ ВШЭ.</div>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start p-5 rounded-lg bg-white border border-gray-200 card-hover">
+        <div class="team-avatar">АК</div>
+        <div>
+          <div class="font-semibold text-[var(--hse-blue)]">Казун Антон Павлович</div>
+          <div class="text-xs text-[var(--hse-red)] font-semibold uppercase tracking-wide mb-1">Директор ИАПР</div>
+          <div class="text-sm text-gray-600">Директор Института анализа предприятий и рынков НИУ ВШЭ.</div>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start p-5 rounded-lg bg-white border border-gray-200 card-hover">
+        <div class="team-avatar">БК</div>
+        <div>
+          <div class="font-semibold text-[var(--hse-blue)]">Кузнецов Борис Викторович</div>
+          <div class="text-xs text-[var(--hse-red)] font-semibold uppercase tracking-wide mb-1">Ведущий научный сотрудник</div>
+          <div class="text-sm text-gray-600">Ведущий научный сотрудник ИАПР НИУ ВШЭ.</div>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start p-5 rounded-lg bg-white border border-gray-200 card-hover">
+        <div class="team-avatar">НЕ</div>
+        <div>
+          <div class="font-semibold text-[var(--hse-blue)]">Ершова Нина Владимировна</div>
+          <div class="text-xs text-[var(--hse-red)] font-semibold uppercase tracking-wide mb-1">Научный сотрудник</div>
+          <div class="text-sm text-gray-600">Научный сотрудник ИАПР НИУ ВШЭ.</div>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start p-5 rounded-lg bg-white border border-gray-200 card-hover">
+        <div class="team-avatar">СМ</div>
+        <div>
+          <div class="font-semibold text-[var(--hse-blue)]">Муковнин Сергей</div>
+          <div class="text-xs text-[var(--hse-red)] font-semibold uppercase tracking-wide mb-1">Сотрудник ИАПР</div>
+          <div class="text-sm text-gray-600">Сотрудник Института анализа предприятий и рынков НИУ ВШЭ.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq" class="py-20">
+  <div class="max-w-4xl mx-auto px-5">
+    <div class="mb-12">
+      <div class="kicker mb-3">Частые вопросы</div>
+      <h2 class="section-title text-3xl md:text-4xl">Что спрашивают руководители</h2>
+    </div>
+    <div class="space-y-3">
+      <details class="p-5 rounded-lg border border-gray-200 bg-white">
+        <summary class="flex justify-between items-center">
+          <span class="font-semibold text-[var(--hse-blue)]">Сколько времени займёт заполнение анкеты?</span>
+          <span class="chev text-gray-400">▾</span>
+        </summary>
+        <p class="mt-3 text-sm text-gray-700 leading-relaxed">В среднем 35–45 минут. Вопросов много, но значительная их часть — закрытые (с выбором варианта). Заполнение можно прервать и вернуться позже.</p>
+      </details>
+      <details class="p-5 rounded-lg border border-gray-200 bg-white">
+        <summary class="flex justify-between items-center">
+          <span class="font-semibold text-[var(--hse-blue)]">Кто должен заполнять анкету?</span>
+          <span class="chev text-gray-400">▾</span>
+        </summary>
+        <p class="mt-3 text-sm text-gray-700 leading-relaxed">Руководитель предприятия или его заместитель, владеющий информацией о производственных, финансовых и кадровых показателях компании. При необходимости — совместно с главным бухгалтером или начальником планового отдела.</p>
+      </details>
+      <details class="p-5 rounded-lg border border-gray-200 bg-white">
+        <summary class="flex justify-between items-center">
+          <span class="font-semibold text-[var(--hse-blue)]">Когда мы получим отчёт?</span>
+          <span class="chev text-gray-400">▾</span>
+        </summary>
+        <p class="mt-3 text-sm text-gray-700 leading-relaxed">Предварительный аналитический отчёт — в течение 2–3 месяцев после закрытия волны; за 4–8 недель до публичного релиза. Развёрнутая версия и отраслевые срезы — ещё через 1–2 месяца.</p>
+      </details>
+      <details class="p-5 rounded-lg border border-gray-200 bg-white">
+        <summary class="flex justify-between items-center">
+          <span class="font-semibold text-[var(--hse-blue)]">Могу ли я отказаться отвечать на отдельные вопросы?</span>
+          <span class="chev text-gray-400">▾</span>
+        </summary>
+        <p class="mt-3 text-sm text-gray-700 leading-relaxed">Да. В каждом вопросе доступен вариант «Затрудняюсь ответить» или «Отказ от ответа». Рекомендуется заполнить максимум — это повысит ценность отчёта и для Вас, и для общей выборки.</p>
+      </details>
+      <details class="p-5 rounded-lg border border-gray-200 bg-white">
+        <summary class="flex justify-between items-center">
+          <span class="font-semibold text-[var(--hse-blue)]">Предусмотрено ли денежное вознаграждение?</span>
+          <span class="chev text-gray-400">▾</span>
+        </summary>
+        <p class="mt-3 text-sm text-gray-700 leading-relaxed">Нет. Проект некоммерческий и академический. Мы возвращаем Ваше время результатом — ранним доступом к отчёту, бенчмарками и приглашением на закрытую презентацию.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA (participate) ===== -->
+<section id="participate" class="py-24 bg-[var(--bg-soft)]">
+  <div class="max-w-4xl mx-auto px-5 text-center">
+    <div class="kicker mb-4">Приглашение</div>
+    <h2 class="section-title text-3xl md:text-5xl mb-5">Присоединяйтесь к волне 2026</h2>
+    <div class="flex flex-wrap justify-center gap-4 mb-6">
+      <a href="/survey/" class="btn-primary text-lg">Начать заполнение анкеты</a>
+      <a href="mailto:iims@hse.ru" class="inline-block border-2 border-[var(--hse-blue)] text-[var(--hse-blue)] font-semibold px-7 py-[13px] rounded hover:bg-[var(--hse-blue)] hover:text-white transition">Связаться с командой</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="bg-[var(--hse-blue)] text-white/80 py-14">
+  <div class="max-w-7xl mx-auto px-5 grid md:grid-cols-4 gap-8">
+    <div class="md:col-span-2">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded bg-white text-[var(--hse-blue)] flex items-center justify-center font-bold font-serif text-xl">И</div>
+        <div>
+          <div class="font-semibold text-white">ИАПР НИУ ВШЭ</div>
+          <div class="text-xs text-white/60">Институт анализа предприятий и рынков</div>
+        </div>
+      </div>
+      <p class="text-sm leading-relaxed max-w-md">Независимый академический мониторинг российской промышленности. С 2005 года.</p>
+    </div>
+    <div>
+      <div class="text-white font-semibold text-sm mb-3">Проект</div>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#about" class="hover:text-white">О проекте</a></li>
+        <li><a href="#value" class="hover:text-white">Что получит участник</a></li>
+        <li><a href="#letters" class="hover:text-white">Письма поддержки</a></li>
+        <li><a href="#team" class="hover:text-white">Команда</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-white font-semibold text-sm mb-3">Контакты</div>
+      <ul class="space-y-2 text-sm">
+        <li><a href="mailto:iims@hse.ru" class="hover:text-white">iims@hse.ru</a></li>
+        <li>+7 (495) 772-95-90, доб. 27038</li>
+        <li>Москва, Мясницкая 20</li>
+        <li><a href="https://iims.hse.ru" class="hover:text-white" target="_blank" rel="noopener">iims.hse.ru</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto px-5 mt-10 pt-6 border-t border-white/10 text-xs text-white/50 flex flex-col md:flex-row justify-between gap-3">
+    <div>© 2026 НИУ «Высшая школа экономики». Институт анализа предприятий и рынков.</div>
+    <div>Все данные обезличены и используются в научных целях.</div>
+  </div>
+</footer>
+
 </body>
 </html>

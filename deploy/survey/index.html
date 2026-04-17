@@ -19,10 +19,14 @@
   .radio-option.selected,.check-option.selected{background:#e0e7ff;border-color:#6366f1}
   .section-badge{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
   .terminate-screen{background:linear-gradient(135deg,#fef2f2,#fee2e2)}
-  .admin-table th,.admin-table td{padding:4px 8px;border:1px solid #ddd;font-size:12px;text-align:left}
+  .hp-field{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
 </style>
 </head>
 <body>
+<div class="hp-field" aria-hidden="true">
+  <label for="hp-website">Website (не заполняйте это поле)</label>
+  <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off"/>
+</div>
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useCallback,useMemo,useEffect,useRef}=React;
@@ -32,10 +36,24 @@ const {useState,useCallback,useMemo,useEffect,useRef}=React;
 // localStorage используется как фоллбэк при локальном тестировании
 // ============================================================
 const STORAGE_KEY = 'hse_survey_2026_responses';
-const API_BASE = 'save.php'; // PHP-бэкенд лежит рядом с index.html
+const API_BASE = '/save.php';
+const LOAD_TIME = Date.now();
 
-async function saveResponse(answers, otherTexts) {
-  const payload = { answers, otherTexts: otherTexts || {} };
+function getHoneypot() {
+  const el = document.getElementById('hp-website');
+  return el ? el.value : '';
+}
+
+async function saveResponse(answers, otherTexts, timing, meta, totalTimeMs) {
+  const payload = {
+    answers,
+    otherTexts: otherTexts || {},
+    timing: timing || {},
+    meta: meta || {},
+    totalTimeMs: totalTimeMs || 0,
+    website: getHoneypot(),
+    pageLoadedAt: LOAD_TIME,
+  };
   try {
     const res = await fetch(API_BASE + '?action=response', {
       method: 'POST',
@@ -64,7 +82,7 @@ async function saveContact(email) {
     const res = await fetch(API_BASE + '?action=contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, website: getHoneypot(), pageLoadedAt: LOAD_TIME }),
     });
     if (!res.ok) throw new Error('Server error ' + res.status);
     return await res.json();
@@ -73,41 +91,6 @@ async function saveContact(email) {
     const contacts = JSON.parse(localStorage.getItem('hse_survey_2026_contacts') || '[]');
     contacts.push({ email, submittedAt: new Date().toISOString() });
     localStorage.setItem('hse_survey_2026_contacts', JSON.stringify(contacts));
-  }
-}
-
-// Admin: загрузка данных с сервера
-const ADMIN_KEY = 'hse2026secret'; // совпадает с ключом в save.php
-
-async function fetchResponses() {
-  try {
-    const res = await fetch(API_BASE + '?action=export&key=' + ADMIN_KEY);
-    if (!res.ok) throw new Error('Server error');
-    return await res.json();
-  } catch (e) {
-    console.warn('Fallback to localStorage');
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  }
-}
-
-async function fetchContacts() {
-  try {
-    const res = await fetch(API_BASE + '?action=export_contacts&key=' + ADMIN_KEY);
-    if (!res.ok) throw new Error('Server error');
-    return await res.json();
-  } catch (e) {
-    console.warn('Fallback to localStorage');
-    return JSON.parse(localStorage.getItem('hse_survey_2026_contacts') || '[]');
-  }
-}
-
-async function fetchStats() {
-  try {
-    const res = await fetch(API_BASE + '?action=stats&key=' + ADMIN_KEY);
-    if (!res.ok) throw new Error('Server error');
-    return await res.json();
-  } catch (e) {
-    return null;
   }
 }
 
@@ -240,6 +223,7 @@ const QUESTIONS = [
     id:'S06',section:'screener',type:'number',
     text:'Сколько Вам полных лет?',
     min:1,max:99,suffix:'лет',
+    required:true,
     terminateIf:v=>typeof v==='number'&&v<18,
     terminateMsg:'К сожалению, для участия в опросе необходимо быть старше 18 лет.',
   },
@@ -742,6 +726,82 @@ const QUESTIONS = [
     ],exclusive:[98],
   },
   {
+    id:'F06',section:'F',type:'matrix_multiple',
+    text:'По каким направлениям Вы сотрудничаете со своими стратегическими партнёрами?',
+    hint:'Возможно несколько ответов в каждом столбце',
+    showIf:a=>a.F04&&a.F04.some(v=>[1,2,3].includes(v)),
+    rows:[
+      {key:'dev_product',label:'Совместная разработка новых продуктов'},
+      {key:'dev_tech',label:'Совместная разработка новых технологий'},
+      {key:'coproduction',label:'Совместное производство продукции'},
+      {key:'sales',label:'Реализация (продажа и послепродажное обслуживание)'},
+      {key:'other',label:'Другие направления'},
+    ],
+    columns:[
+      {value:'ru',label:'российские партнёры'},
+      {value:'eaeu',label:'из стран ЕАЭС/СНГ'},
+      {value:'friendly',label:'из других дружественных стран'},
+      {value:'unfriendly',label:'из недружественных стран'},
+    ],
+  },
+  {
+    id:'F07',section:'F',type:'matrix_multiple',
+    text:'Меняли ли Вы своих поставщиков из-за введения новых пакетов санкций в 2025–2026 гг.?',
+    hint:'Возможно несколько ответов в каждом столбце (2–6)',
+    rows:[
+      {key:'raw',label:'Сырьё и материалы'},
+      {key:'parts',label:'Детали, компоненты и агрегаты'},
+      {key:'machines',label:'Машины и оборудование'},
+      {key:'tech',label:'Технологии'},
+      {key:'services',label:'Услуги, в т.ч. техобслуживание и ремонт'},
+    ],
+    columns:[
+      {value:1,label:'Нет, не меняли',exclusive:true},
+      {value:2,label:'Не меняли старых, но появились новые'},
+      {value:3,label:'Меняли российских поставщиков'},
+      {value:4,label:'Меняли иностранных поставщиков'},
+      {value:98,label:'Затрудняюсь ответить',exclusive:true},
+    ],
+  },
+  {
+    id:'F08',section:'F',type:'matrix_multiple',
+    text:'Если Вы поменяли иностранных поставщиков — откуда Ваши новые поставщики по каждой категории?',
+    hint:'Возможно несколько ответов в каждом столбце',
+    showIf:a=>{
+      if(!a.F07)return false;
+      return Object.values(a.F07).some(row=>row&&typeof row==='object'&&row[4]);
+    },
+    rows:[
+      {key:'raw',label:'Сырьё и материалы'},
+      {key:'parts',label:'Детали, компоненты и агрегаты'},
+      {key:'machines',label:'Машины и оборудование'},
+      {key:'tech',label:'Технологии'},
+      {key:'services',label:'Услуги'},
+    ],
+    columns:[
+      {value:1,label:'Россия'},{value:2,label:'ЕАЭС'},
+      {value:3,label:'Европа'},{value:4,label:'Турция'},
+      {value:5,label:'Китай'},{value:6,label:'Другие азиатские'},
+      {value:7,label:'США/Канада'},{value:8,label:'Другие'},
+      {value:98,label:'З/О',exclusive:true},
+    ],
+  },
+  {
+    id:'F09',section:'F',type:'matrix_single',
+    text:'Как Вы оцениваете последствия изменений в составе поставщиков?',
+    hint:'Один ответ по каждой строке',
+    showIf:a=>{
+      if(!a.F07)return false;
+      return Object.values(a.F07).some(row=>row&&typeof row==='object'&&(row[2]||row[3]||row[4]));
+    },
+    rows:['Качество продукции','Издержки производства','Номенклатура/ассортимент'],
+    columns:[
+      {value:1,label:'Заметный рост'},{value:2,label:'Незначительный рост'},
+      {value:3,label:'Практически нет изменений'},{value:4,label:'Незначительное снижение'},
+      {value:5,label:'Значительное снижение'},{value:98,label:'З/О'},
+    ],
+  },
+  {
     id:'F10',section:'F',type:'single',
     text:'Есть ли у предприятия действующие экологические сертификаты?',
     hint:'Например: «ЭКО», «БИО», ГОСТ Р ИСО 14001, Organic, FSC, EU Ecolabel.',
@@ -764,12 +824,56 @@ const QUESTIONS = [
     ],exclusive:[3,98],
   },
   {
+    id:'G02',section:'G',type:'single_with_text',
+    text:'Когда Ваше предприятие впервые осуществило поставку на экспорт своей продукции и/или услуг?',
+    hint:'Назовите именно год первого выхода на экспорт, даже если сейчас предприятие не экспортирует.',
+    showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
+    options:[
+      {value:1,label:'До 2021 года включительно'},
+      {value:2,label:'После 2021 г. — укажите год',hasText:true,textPlaceholder:'Укажите год'},
+      {value:98,label:'Затрудняюсь ответить'},
+      {value:99,label:'Отказ от ответа'},
+    ]
+  },
+  {
+    id:'G03',section:'G',type:'dual_period_multiple',
+    text:'Какую продукцию/услуги экспортировало Ваше предприятие в 2023–2025 гг. и в 2026 году?',
+    showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
+    periods:['2023–2025 гг.','2026 г.'],
+    options:[
+      {value:1,label:'Сырьё и материалы'},
+      {value:2,label:'Детали, компоненты и агрегаты'},
+      {value:3,label:'Машины и оборудование'},
+      {value:4,label:'Иная готовая продукция'},
+      {value:5,label:'Услуги'},
+      {value:98,label:'Затрудняюсь ответить'},
+      {value:99,label:'Отказ от ответа'},
+    ],exclusive:[98,99],
+  },
+  {
     id:'G04',section:'G',type:'dual_number_refuse',
     text:'Какой примерно процент в выручке составили поступления от экспорта?',
     showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
     fields:[{key:'2025',label:'в 2025 г.',suffix:'%'},{key:'2026',label:'в 2026 г. (оценка)',suffix:'%'}],
     min:0,max:100,
-    refuseOptions:[{value:998,label:'Затрудняюсь ответить'}],
+    refuseOptions:[{value:998,label:'Затрудняюсь ответить'},{value:999,label:'Отказ от ответа'}],
+  },
+  {
+    id:'G05',section:'G',type:'dual_percentage_distribution',
+    text:'Если принять валютную выручку от экспорта за 100%, какая доля приходилась на следующие страны/регионы?',
+    hint:'Суммы по каждому столбцу должны составлять 100%. Примерная оценка.',
+    showIf:a=>{if(!a.G01)return false;const h=p=>{const v=a.G01[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
+    periods:['2025 г.','2026 г. (оценка)'],
+    rows:[
+      {key:'eaeu',label:'Страны ЕАЭС (Казахстан, Белоруссия, Армения, Киргизия)'},
+      {key:'europe',label:'Европейские страны'},
+      {key:'turkey',label:'Турция'},
+      {key:'china',label:'Китай'},
+      {key:'asia',label:'Другие азиатские страны'},
+      {key:'usa_canada',label:'США и Канада'},
+      {key:'other',label:'Другие страны'},
+    ],
+    refuseOptions:[{value:998,label:'Затрудняюсь ответить'},{value:999,label:'Отказ от ответа'}],
   },
   {
     id:'G06',section:'G',type:'dual_period_multiple',
@@ -783,6 +887,20 @@ const QUESTIONS = [
     ],exclusive:[3,98],
   },
   {
+    id:'G07',section:'G',type:'dual_period_multiple',
+    text:'Какую именно продукцию/услуги приобретало Ваше предприятие в 2023–2025 гг. и в 2026 г. за рубежом?',
+    showIf:a=>{if(!a.G06)return false;const h=p=>{const v=a.G06[p];return v&&(v.includes(1)||v.includes(2))};return h('period_0')||h('period_1')},
+    periods:['2023–2025 гг.','2026 г.'],
+    options:[
+      {value:1,label:'Сырьё, материалы'},
+      {value:2,label:'Детали, компоненты и агрегаты'},
+      {value:3,label:'Технологии (патенты, лицензии, ноу-хау и т.п.)'},
+      {value:4,label:'Услуги'},
+      {value:98,label:'Затрудняюсь ответить'},
+      {value:99,label:'Отказ от ответа'},
+    ],exclusive:[98,99],
+  },
+  {
     id:'G08',section:'G',type:'dual_period_multiple',
     text:'Приобретало ли Ваше предприятие импортное оборудование?',
     periods:['2023–2025 гг.','2026 г.'],
@@ -794,6 +912,44 @@ const QUESTIONS = [
     ],exclusive:[3,98],
   },
   {
+    id:'G09',section:'G',type:'dual_number_refuse',
+    text:'Если принять за 100% общий объём материальных затрат, какой процент пришёлся на приобретение иностранных продуктов и услуг?',
+    hint:'Учитывается как прямой импорт, так и через торговые фирмы/посредников в России.',
+    showIf:a=>{
+      const g6=a.G06,g8=a.G08;
+      const h=v=>v&&(v.period_0&&(v.period_0.includes(1)||v.period_0.includes(2)))||(v&&v.period_1&&(v.period_1.includes(1)||v.period_1.includes(2)));
+      return h(g6)||h(g8);
+    },
+    fields:[{key:'2025',label:'в 2025 г.',suffix:'%'},{key:'2026',label:'в 2026 г. (оценка)',suffix:'%'}],
+    min:0,max:100,
+    refuseOptions:[
+      {value:1,label:'Не приобретали иностранные продукты/услуги'},
+      {value:998,label:'Затрудняюсь ответить'},
+      {value:999,label:'Отказ от ответа'},
+    ],
+  },
+  {
+    id:'G10',section:'G',type:'dual_percentage_distribution',
+    text:'Если принять затраты на приобретение иностранных сырья, материалов, компонентов, технологий или услуг за 100%, какая доля приходилась на следующие страны/регионы?',
+    hint:'Суммы по каждому столбцу должны составлять 100%. Примерная оценка.',
+    showIf:a=>{
+      const g6=a.G06,g8=a.G08;
+      const h=v=>v&&(v.period_0&&(v.period_0.includes(1)||v.period_0.includes(2)))||(v&&v.period_1&&(v.period_1.includes(1)||v.period_1.includes(2)));
+      return h(g6)||h(g8);
+    },
+    periods:['2025 г.','2026 г.'],
+    rows:[
+      {key:'eaeu',label:'Страны ЕАЭС (Казахстан, Белоруссия, Армения, Киргизия)'},
+      {key:'europe',label:'Европейские страны'},
+      {key:'turkey',label:'Турция'},
+      {key:'china',label:'Китай'},
+      {key:'asia',label:'Другие азиатские страны'},
+      {key:'usa_canada',label:'США и Канада'},
+      {key:'other',label:'Другие страны'},
+    ],
+    refuseOptions:[{value:998,label:'Затрудняюсь ответить'},{value:999,label:'Отказ от ответа'}],
+  },
+  {
     id:'G11',section:'G',type:'matrix_single',
     text:'Оцените зависимость Вашего предприятия от перечисленных категорий импорта.',
     hint:'Учитывается как прямой импорт, так и через посредников в России.',
@@ -801,8 +957,47 @@ const QUESTIONS = [
     columns:[
       {value:1,label:'Импорта нет'},{value:2,label:'Есть аналоги в РФ'},
       {value:3,label:'Аналоги в дружественных странах'},{value:4,label:'Аналогов нет'},
-      {value:98,label:'Затрудняюсь'},
+      {value:98,label:'Затрудняюсь'},{value:99,label:'Отказ'},
     ]
+  },
+  {
+    id:'G12',section:'G',type:'dual_period_multiple',
+    text:'Из каких стран Ваше предприятие импортировало оборудование?',
+    showIf:a=>{
+      const g8=a.G08;
+      return g8&&((g8.period_0&&(g8.period_0.includes(1)||g8.period_0.includes(2)))||(g8.period_1&&(g8.period_1.includes(1)||g8.period_1.includes(2))));
+    },
+    periods:['2023–2025 гг.','2026 г.'],
+    options:[
+      {value:1,label:'Импорт из стран ЕАЭС (произведённое в ЕАЭС)'},
+      {value:2,label:'Импорт из стран ЕАЭС (произведённое в других странах)'},
+      {value:3,label:'Импорт из европейских стран'},
+      {value:4,label:'Импорт из Турции'},
+      {value:5,label:'Импорт из Китая'},
+      {value:6,label:'Импорт из других азиатских стран'},
+      {value:7,label:'Импорт из США и Канады'},
+      {value:8,label:'Импорт из других стран'},
+      {value:98,label:'Затрудняюсь ответить'},
+    ],exclusive:[98],
+  },
+  {
+    id:'G13',section:'G',type:'dual_percentage_distribution',
+    text:'Если принять за 100% стоимость закупок иностранного оборудования, какова примерно доля отдельных стран-производителей?',
+    showIf:a=>{
+      const g8=a.G08;
+      return g8&&((g8.period_0&&(g8.period_0.includes(1)||g8.period_0.includes(2)))||(g8.period_1&&(g8.period_1.includes(1)||g8.period_1.includes(2))));
+    },
+    periods:['2023–2025 гг.','2026 г.'],
+    rows:[
+      {key:'eaeu',label:'Из стран ЕАЭС (Казахстан, Белоруссия, Армения, Киргизия)'},
+      {key:'europe',label:'Из европейских стран'},
+      {key:'turkey',label:'Из Турции'},
+      {key:'china',label:'Из Китая'},
+      {key:'asia',label:'Из других азиатских стран'},
+      {key:'usa_canada',label:'Из США и Канады'},
+      {key:'other',label:'Из других стран'},
+    ],
+    refuseOptions:[{value:98,label:'Затрудняюсь ответить'}],
   },
 
   // ===== SECTION H =====
@@ -837,6 +1032,16 @@ const QUESTIONS = [
       {value:6,label:'Другая категория (укажите)'},
       {value:98,label:'Затрудняюсь ответить'},
     ],hasOther:6,exclusive:[98],
+  },
+  {
+    id:'H04',section:'H',type:'dual_period_single',
+    text:'Менялся ли в 2023–2025 гг. и в 2026 г. генеральный директор/руководитель Вашего предприятия?',
+    hint:'Если Ваше предприятие в нынешнем виде было образовано после 2023 года, расскажите о том периоде, когда оно существовало.',
+    periods:['2023–2025 гг.','2026 г.'],
+    options:[
+      {value:1,label:'Да'},{value:2,label:'Нет'},
+      {value:98,label:'Затрудняюсь ответить'},{value:99,label:'Отказ от ответа'},
+    ],
   },
   {
     id:'H05',section:'H',type:'single',
@@ -959,26 +1164,39 @@ function ProgressBar({current,total,sectionTitle}){
     <div className="w-full bg-gray-200 rounded-full h-2">
       <div className="bg-indigo-500 h-2 rounded-full progress-bar" style={{width:`${pct}%`}}></div>
     </div>
-    {sectionTitle&&<div className="mt-1 text-xs text-gray-400">{sectionTitle}</div>}
+    {/* sectionTitle hidden from respondent */}
   </div>);
 }
 
 function SingleChoice({q,value,onChange,otherText,onOtherTextChange}){
+  // click selected option again -> unselect (fixes "Затрудняюсь ответить" trap)
+  const pick=v=>{if(value===v){onChange(null)}else{onChange(v)}};
   return(<div className="space-y-2">{q.options.map(opt=>(
     <div key={opt.value} className={`radio-option p-3 rounded-lg border cursor-pointer transition-all ${value===opt.value?'selected border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-      onClick={()=>onChange(opt.value)}>
-      <label className="flex items-center cursor-pointer">
-        <input type="radio" checked={value===opt.value} onChange={()=>onChange(opt.value)} className="mr-3 text-indigo-600"/>
+      onClick={()=>pick(opt.value)}>
+      <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
+        <input type="radio" checked={value===opt.value} onChange={()=>pick(opt.value)} onClick={e=>{if(value===opt.value){e.preventDefault();onChange(null)}}} className="mr-3 text-indigo-600"/>
         <span className={`text-sm ${opt.value>=98?'text-gray-400 italic':''}`}>{opt.label}</span>
       </label>
       {q.hasOther===opt.value&&value===opt.value&&(
-        <input type="text" placeholder="Укажите..." value={otherText||''} onChange={e=>onOtherTextChange(e.target.value)}
+        <input type="text" placeholder="Укажите..." value={otherText||''} onChange={e=>onOtherTextChange(e.target.value)} onClick={e=>e.stopPropagation()}
           className="mt-2 ml-7 w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"/>)}
     </div>))}</div>);
 }
 
 function MultipleChoice({q,value=[],onChange,otherText,onOtherTextChange}){
-  const toggle=v=>{const excl=q.exclusive||[];if(excl.includes(v)){onChange([v])}else{let next=value.filter(x=>!excl.includes(x));next=next.includes(v)?next.filter(x=>x!==v):[...next,v];onChange(next)}};
+  // exclusive options (like "Затрудняюсь ответить") can be toggled off by clicking again
+  const toggle=v=>{
+    const excl=q.exclusive||[];
+    if(excl.includes(v)){
+      if(value.length===1&&value[0]===v){onChange([])}
+      else{onChange([v])}
+    } else {
+      let next=value.filter(x=>!excl.includes(x));
+      next=next.includes(v)?next.filter(x=>x!==v):[...next,v];
+      onChange(next);
+    }
+  };
   return(<div className="space-y-2">{q.options.map(opt=>(
     <div key={opt.value} className={`check-option p-3 rounded-lg border cursor-pointer transition-all ${value.includes(opt.value)?'selected border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
       onClick={()=>toggle(opt.value)}>
@@ -996,13 +1214,18 @@ function NumberInput({q,value,onChange}){
   return(<div className="flex items-center space-x-3">
     <input type="number" value={value==null?'':value} onChange={e=>{const v=e.target.value===''?null:Number(e.target.value);onChange(v)}}
       min={q.min} max={q.max} placeholder={q.placeholder||''}
-      className="w-40 border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+      className="w-52 border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
     {q.suffix&&<span className="text-gray-500">{q.suffix}</span>}
   </div>);
 }
 
 function NumberWithRefuse({q,value,onChange}){
   const isRef=typeof value==='object'&&value!==null&&value.refused;
+  // Toggle: click selected refuse option again -> unlock input
+  const pickRefuse=code=>{
+    if(isRef&&value.code===code){onChange(null)}
+    else{onChange({refused:true,code})}
+  };
   return(<div className="space-y-3">
     <div className="flex items-center space-x-3">
       <input type="number" value={isRef?'':(value==null?'':value)} disabled={isRef}
@@ -1013,12 +1236,14 @@ function NumberWithRefuse({q,value,onChange}){
     </div>
     {q.refuseOptions&&<div className="space-y-1 mt-2">{q.refuseOptions.map(opt=>(
       <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm transition-all ${isRef&&value.code===opt.value?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-        onClick={()=>onChange({refused:true,code:opt.value})}>
-        <label className="flex items-center cursor-pointer">
-          <input type="radio" checked={isRef&&value.code===opt.value} onChange={()=>onChange({refused:true,code:opt.value})} className="mr-2"/>
+        onClick={()=>pickRefuse(opt.value)}>
+        <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
+          <input type="radio" checked={isRef&&value.code===opt.value} readOnly className="mr-2"
+            onClick={e=>{e.stopPropagation();pickRefuse(opt.value)}}/>
           <span className="text-gray-400 italic">{opt.label}</span>
         </label>
       </div>))}</div>}
+    {isRef&&<div className="text-xs text-indigo-500 mt-1">Нажмите ещё раз на выбранный вариант, чтобы отменить.</div>}
   </div>);
 }
 
@@ -1030,20 +1255,26 @@ function TextInput({q,value,onChange}){
 }
 
 function DualNumber({q,value={},onChange}){
-  return(<div className="space-y-3">{q.fields.map(f=>(
-    <div key={f.key} className="flex items-center space-x-3">
-      <span className="text-sm text-gray-600 w-40">{f.label}:</span>
-      <input type="number" value={value[f.key]==null?'':value[f.key]}
-        onChange={e=>{const v=e.target.value===''?undefined:Number(e.target.value);onChange({...value,[f.key]:v})}}
-        min={q.min} max={q.max}
-        className="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
-      {f.suffix&&<span className="text-gray-500 text-sm">{f.suffix}</span>}
+  return(<div className="space-y-4">{q.fields.map(f=>(
+    <div key={f.key} className="p-3 bg-gray-50 rounded-lg">
+      <div className="text-sm font-medium text-gray-600 mb-2">{f.label}:</div>
+      <div className="flex items-center space-x-3">
+        <input type="number" value={value[f.key]==null?'':value[f.key]}
+          onChange={e=>{const v=e.target.value===''?undefined:Number(e.target.value);onChange({...value,[f.key]:v})}}
+          min={q.min} max={q.max}
+          className="w-40 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+        {f.suffix&&<span className="text-gray-500 text-sm">{f.suffix}</span>}
+      </div>
     </div>))}</div>);
 }
 
 function DualNumberRefuse({q,value={},onChange}){
   return(<div className="space-y-4">{q.fields.map(f=>{
     const fVal=value[f.key];const isRef=typeof fVal==='object'&&fVal!==null&&fVal.refused;
+    const pickRefuse=code=>{
+      if(isRef&&fVal.code===code){onChange({...value,[f.key]:null})}
+      else{onChange({...value,[f.key]:{refused:true,code}})}
+    };
     return(<div key={f.key} className="p-3 bg-gray-50 rounded-lg">
       <div className="text-sm font-medium text-gray-600 mb-2">{f.label}</div>
       <div className="flex items-center space-x-3">
@@ -1055,45 +1286,94 @@ function DualNumberRefuse({q,value={},onChange}){
       </div>
       {q.refuseOptions&&<div className="flex flex-wrap gap-2 mt-2">{q.refuseOptions.map(opt=>(
         <button key={opt.value} className={`text-xs px-2 py-1 rounded border ${isRef&&fVal.code===opt.value?'border-indigo-400 bg-indigo-50 text-indigo-600':'border-gray-300 text-gray-400 hover:bg-gray-100'}`}
-          onClick={()=>onChange({...value,[f.key]:{refused:true,code:opt.value}})}>{opt.label}</button>))}</div>}
+          onClick={()=>pickRefuse(opt.value)}>{opt.label}</button>))}</div>}
     </div>)})}</div>);
 }
 
 function MatrixSingle({q,value={},onChange}){
+  const pick=(ri,cv)=>{
+    const rowKey=q.rows[ri]&&typeof q.rows[ri]==='object'?q.rows[ri].key:`row_${ri}`;
+    const k=typeof q.rows[ri]==='object'?rowKey:`row_${ri}`;
+    if(value[k]===cv){const n={...value};delete n[k];onChange(n)}
+    else{onChange({...value,[k]:cv})}
+  };
+  const rowKeyOf=(r,ri)=>typeof r==='object'?r.key:`row_${ri}`;
+  const rowLabelOf=r=>typeof r==='object'?r.label:r;
   return(<div className="overflow-x-auto"><table className="w-full text-sm">
     <thead><tr className="border-b"><th className="text-left p-2 w-1/3"></th>
       {q.columns.map(c=><th key={c.value} className="p-2 text-center text-xs font-medium text-gray-500">{c.label}</th>)}
     </tr></thead>
-    <tbody>{q.rows.map((row,ri)=>(
+    <tbody>{q.rows.map((row,ri)=>{const rk=rowKeyOf(row,ri);return(
       <tr key={ri} className="border-b hover:bg-gray-50">
-        <td className="p-2 text-sm">{row}</td>
+        <td className="p-2 text-sm">{rowLabelOf(row)}</td>
         {q.columns.map(c=><td key={c.value} className="p-2 text-center">
-          <input type="radio" name={`${q.id}_r${ri}`} checked={value[`row_${ri}`]===c.value}
-            onChange={()=>onChange({...value,[`row_${ri}`]:c.value})} className="text-indigo-600"/>
+          <input type="radio" name={`${q.id}_r${ri}`} checked={value[rk]===c.value}
+            readOnly onClick={()=>pick(ri,c.value)} className="text-indigo-600 cursor-pointer"/>
         </td>)}
-      </tr>))}
+      </tr>)})}
+    </tbody></table></div>);
+}
+
+function MatrixMultiple({q,value={},onChange}){
+  // value structure: { [rowKey]: { [colValue]: boolean } }
+  const toggle=(rk,cv)=>{
+    const row=value[rk]||{};
+    const next={...row};
+    if(next[cv]){delete next[cv]}else{next[cv]=true}
+    const all={...value,[rk]:next};
+    if(Object.keys(next).length===0)delete all[rk];
+    onChange(all);
+  };
+  const rowKeyOf=(r,ri)=>typeof r==='object'?r.key:`row_${ri}`;
+  const rowLabelOf=r=>typeof r==='object'?r.label:r;
+  return(<div className="overflow-x-auto"><table className="w-full text-sm">
+    <thead><tr className="border-b"><th className="text-left p-2 w-1/3"></th>
+      {q.columns.map(c=><th key={c.value} className="p-2 text-center text-xs font-medium text-gray-500">{c.label}</th>)}
+    </tr></thead>
+    <tbody>{q.rows.map((row,ri)=>{const rk=rowKeyOf(row,ri);const rv=value[rk]||{};return(
+      <tr key={ri} className="border-b hover:bg-gray-50">
+        <td className="p-2 text-sm">{rowLabelOf(row)}</td>
+        {q.columns.map(c=><td key={c.value} className="p-2 text-center">
+          <input type="checkbox" checked={!!rv[c.value]}
+            onChange={()=>toggle(rk,c.value)} className="text-indigo-600 cursor-pointer"/>
+        </td>)}
+      </tr>)})}
     </tbody></table></div>);
 }
 
 function DualPeriodSingle({q,value={},onChange}){
-  return(<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{q.periods.map((period,pi)=>(
+  return(<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{q.periods.map((period,pi)=>{
+    const k=`period_${pi}`;
+    const pick=v=>{
+      if(value[k]===v){const n={...value};delete n[k];onChange(n)}
+      else{onChange({...value,[k]:v})}
+    };
+    return(
     <div key={pi} className="p-3 bg-gray-50 rounded-lg">
       <div className="text-sm font-medium text-gray-600 mb-2">{period}</div>
       <div className="space-y-1">{q.options.map(opt=>(
-        <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm transition-all ${value[`period_${pi}`]===opt.value?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-          onClick={()=>onChange({...value,[`period_${pi}`]:opt.value})}>
-          <label className="flex items-center cursor-pointer">
-            <input type="radio" checked={value[`period_${pi}`]===opt.value} onChange={()=>onChange({...value,[`period_${pi}`]:opt.value})} className="mr-2 text-indigo-600"/>
+        <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm transition-all ${value[k]===opt.value?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
+          onClick={()=>pick(opt.value)}>
+          <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
+            <input type="radio" checked={value[k]===opt.value} readOnly onClick={e=>{e.stopPropagation();pick(opt.value)}} className="mr-2 text-indigo-600"/>
             <span className={opt.value>=98?'text-gray-400 italic':''}>{opt.label}</span>
           </label>
         </div>))}</div>
-    </div>))}</div>);
+    </div>)})}</div>);
 }
 
 function DualPeriodMultiple({q,value={},onChange}){
-  const toggle=(pi,v)=>{const k=`period_${pi}`;const cur=value[k]||[];const excl=q.exclusive||[];let next;
-    if(excl.includes(v)){next=[v]}else{next=cur.filter(x=>!excl.includes(x));next=next.includes(v)?next.filter(x=>x!==v):[...next,v]}
-    onChange({...value,[k]:next})};
+  const toggle=(pi,v)=>{
+    const k=`period_${pi}`;const cur=value[k]||[];const excl=q.exclusive||[];let next;
+    if(excl.includes(v)){
+      // toggle off exclusive if it's already the only selected
+      if(cur.length===1&&cur[0]===v){next=[]}else{next=[v]}
+    } else {
+      next=cur.filter(x=>!excl.includes(x));
+      next=next.includes(v)?next.filter(x=>x!==v):[...next,v];
+    }
+    onChange({...value,[k]:next});
+  };
   return(<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{q.periods.map((period,pi)=>(
     <div key={pi} className="p-3 bg-gray-50 rounded-lg">
       <div className="text-sm font-medium text-gray-600 mb-2">{period}</div>
@@ -1123,9 +1403,12 @@ function PercentageDistribution({q,value={},onChange}){
       </div>))}
     {!isRef&&<div className={`text-sm font-medium p-2 rounded ${ok?'bg-green-50 text-green-700':'bg-red-50 text-red-600'}`}>
       Итого: {total}% {ok?'':'(должно быть '+q.totalCheck+'%)'}</div>}
-    {q.refuseOptions&&<div className="flex flex-wrap gap-2 mt-2">{q.refuseOptions.map(opt=>(
-      <button key={opt.value} className={`text-xs px-3 py-1 rounded border ${isRef&&value._refusedCode===opt.value?'border-indigo-400 bg-indigo-50 text-indigo-600':'border-gray-300 text-gray-400 hover:bg-gray-100'}`}
-        onClick={()=>onChange({_refused:true,_refusedCode:opt.value})}>{opt.label}</button>))}</div>}
+    {q.refuseOptions&&<div className="flex flex-wrap gap-2 mt-2">{q.refuseOptions.map(opt=>{
+      const sel=isRef&&value._refusedCode===opt.value;
+      return(
+        <button key={opt.value} className={`text-xs px-3 py-1 rounded border ${sel?'border-indigo-400 bg-indigo-50 text-indigo-600':'border-gray-300 text-gray-400 hover:bg-gray-100'}`}
+          onClick={()=>{if(sel){onChange({})}else{onChange({_refused:true,_refusedCode:opt.value})}}}>{opt.label}</button>)
+    })}</div>}
   </div>);
 }
 
@@ -1145,9 +1428,15 @@ function DualPercentageDistribution({q,value={},onChange}){
           <span className="text-gray-400 text-xs">%</span>
         </div>))}
       {!isRef&&<div className={`text-xs font-medium p-1 rounded mt-1 ${ok?'bg-green-50 text-green-700':'bg-red-50 text-red-600'}`}>Итого: {total}%</div>}
-      {q.refuseOptions&&<div className="flex flex-wrap gap-1 mt-2">{q.refuseOptions.map(opt=>(
-        <button key={opt.value} className={`text-xs px-2 py-0.5 rounded border ${isRef&&pVal._refusedCode===opt.value?'border-indigo-400 bg-indigo-50':'border-gray-300 text-gray-400'}`}
-          onClick={()=>onChange({...value,[pK]:{_refused:true,_refusedCode:opt.value}})}>{opt.label}</button>))}</div>}
+      {q.refuseOptions&&<div className="flex flex-wrap gap-1 mt-2">{q.refuseOptions.map(opt=>{
+        const sel=isRef&&pVal._refusedCode===opt.value;
+        return(
+          <button key={opt.value} className={`text-xs px-2 py-0.5 rounded border ${sel?'border-indigo-400 bg-indigo-50 text-indigo-600':'border-gray-300 text-gray-400'}`}
+            onClick={()=>{
+              if(sel){onChange({...value,[pK]:{}})}
+              else{onChange({...value,[pK]:{_refused:true,_refusedCode:opt.value}})}
+            }}>{opt.label}</button>)
+      })}</div>}
     </div>)})}</div>);
 }
 
@@ -1161,14 +1450,18 @@ function TextList({q,value={},onChange}){
           placeholder="Укажите позицию/специальность..."
           className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
       </div>))}
-    {q.refuseOptions&&<div className="space-y-1 mt-2">{q.refuseOptions.map(opt=>(
-      <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm ${isRef&&value._refusedCode===opt.value?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
-        onClick={()=>onChange({_refused:true,_refusedCode:opt.value})}>
-        <label className="flex items-center cursor-pointer">
-          <input type="radio" checked={isRef&&value._refusedCode===opt.value} onChange={()=>onChange({_refused:true,_refusedCode:opt.value})} className="mr-2"/>
+    {q.refuseOptions&&<div className="space-y-1 mt-2">{q.refuseOptions.map(opt=>{
+      const sel=isRef&&value._refusedCode===opt.value;
+      const pick=()=>{if(sel){onChange({})}else{onChange({_refused:true,_refusedCode:opt.value})}};
+      return(
+      <div key={opt.value} className={`p-2 rounded border cursor-pointer text-sm ${sel?'border-indigo-400 bg-indigo-50':'border-gray-200 hover:bg-gray-50'}`}
+        onClick={pick}>
+        <label className="flex items-center cursor-pointer" onClick={e=>e.stopPropagation()}>
+          <input type="radio" checked={sel} readOnly onClick={e=>{e.stopPropagation();pick()}} className="mr-2"/>
           <span className="text-gray-400 italic">{opt.label}</span>
         </label>
-      </div>))}</div>}
+      </div>)
+    })}</div>}
   </div>);
 }
 
@@ -1186,6 +1479,7 @@ function QuestionRenderer({question:q,answers,setAnswer,otherTexts,setOtherText}
     dual_number:()=><DualNumber q={q} value={val} onChange={onChange}/>,
     dual_number_refuse:()=><DualNumberRefuse q={q} value={val} onChange={onChange}/>,
     matrix_single:()=><MatrixSingle q={q} value={val} onChange={onChange}/>,
+    matrix_multiple:()=><MatrixMultiple q={q} value={val} onChange={onChange}/>,
     dual_period_single:()=><DualPeriodSingle q={q} value={val} onChange={onChange}/>,
     dual_period_multiple:()=><DualPeriodMultiple q={q} value={val} onChange={onChange}/>,
     percentage_distribution:()=><PercentageDistribution q={q} value={val} onChange={onChange}/>,
@@ -1193,92 +1487,6 @@ function QuestionRenderer({question:q,answers,setAnswer,otherTexts,setOtherText}
     text_list:()=><TextList q={q} value={val} onChange={onChange}/>,
   };
   return(map[q.type]||(() =><div className="text-red-500">Unknown: {q.type}</div>))();
-}
-
-// ============================================================
-// ADMIN PANEL — accessible via #admin
-// ============================================================
-function AdminPanel(){
-  const [responses,setResponses]=useState([]);
-  const [contacts,setContacts]=useState([]);
-  const [stats,setStats]=useState(null);
-  const [loading,setLoading]=useState(true);
-
-  const loadData=async()=>{
-    setLoading(true);
-    const [r,c,s]=await Promise.all([fetchResponses(),fetchContacts(),fetchStats()]);
-    setResponses(r||[]);setContacts(c||[]);setStats(s);setLoading(false);
-  };
-  useEffect(()=>{loadData()},[]);
-
-  const refresh=()=>loadData();
-  const exportAll=()=>{
-    const data=JSON.stringify(responses,null,2);
-    const blob=new Blob(['\ufeff'+data],{type:'application/json'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');
-    a.href=url;a.download=`survey_export_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  };
-  const exportCsv=()=>{
-    if(responses.length===0)return;
-    const allKeys=new Set();responses.forEach(r=>Object.keys(r.answers).forEach(k=>allKeys.add(k)));
-    const keys=Array.from(allKeys).sort();
-    let csv='id;submittedAt;'+keys.join(';')+'\n';
-    responses.forEach(r=>{
-      const row=[r.id,r.submittedAt,...keys.map(k=>{const v=r.answers[k];return typeof v==='object'?JSON.stringify(v):String(v??'')})];
-      csv+=row.map(c=>String(c).replace(/;/g,',')).join(';')+'\n';
-    });
-    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');
-    a.href=url;a.download=`survey_export_${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  };
-
-  return(
-    <div className="min-h-screen p-6 max-w-6xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">Панель администратора</h1>
-            <p className="text-sm text-gray-500">Собрано ответов: <strong>{responses.length}</strong>{stats&&<span> (сервер: {stats.responses} ответов, {stats.contacts} контактов)</span>}</p>
-          </div>
-          <a href="#" className="text-sm text-indigo-600 hover:underline">&#8592; К анкете</a>
-        </div>
-        {loading&&<p className="text-center text-gray-400 py-4">Загрузка данных с сервера...</p>}
-        <div className="flex gap-3 mb-6">
-          <button onClick={refresh} className="px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200">Обновить</button>
-          <button onClick={exportAll} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">Экспорт JSON</button>
-          <button onClick={exportCsv} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">Экспорт CSV</button>
-        </div>
-        {responses.length===0?<p className="text-gray-400 text-center py-12">Пока нет собранных ответов.</p>:
-        <div className="overflow-x-auto">
-          <table className="admin-table w-full"><thead><tr className="bg-gray-50">
-            <th>#</th><th>Дата</th><th>Регион</th><th>Сотрудники</th><th>ОКВЭД</th><th>Детали</th>
-          </tr></thead><tbody>{responses.map((r,i)=>(
-            <tr key={r.id} className="hover:bg-gray-50">
-              <td>{i+1}</td>
-              <td>{new Date(r.submittedAt).toLocaleString('ru')}</td>
-              <td>{r.answers.META_REGION||'—'}</td>
-              <td>{r.answers.S03||'—'}</td>
-              <td>{r.answers.S01||'—'}</td>
-              <td><details><summary className="cursor-pointer text-indigo-600 text-xs">Показать</summary>
-                <pre className="text-xs mt-1 p-2 bg-gray-50 rounded max-h-40 overflow-auto">{JSON.stringify(r.answers,null,1)}</pre>
-              </details></td>
-            </tr>))}</tbody></table>
-        </div>}
-
-        {contacts.length>0&&(
-        <div className="mt-8 pt-6 border-t">
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">Контакты для получения результатов ({contacts.length})</h3>
-          <div className="space-y-1">{contacts.map((c,i)=>(
-            <div key={i} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
-              <span>{c.email}</span>
-              <span className="text-xs text-gray-400">{new Date(c.submittedAt).toLocaleString('ru')}</span>
-            </div>))}
-          </div>
-        </div>)}
-      </div>
-    </div>);
 }
 
 // ============================================================
@@ -1365,6 +1573,40 @@ function SurveyApp(){
   const [validationErr,setValidationErr]=useState(null);
   const topRef=useRef(null);
 
+  // --- Timing & Meta ---
+  const surveyStartRef=useRef(null);
+  const qEnterRef=useRef(null);
+  const timingRef=useRef({});
+  const metaRef=useRef(null);
+
+  const collectMeta=()=>({
+    ua:navigator.userAgent,
+    platform:navigator.platform||'',
+    lang:navigator.language||'',
+    langs:navigator.languages?[...navigator.languages]:[],
+    screen:[screen.width,screen.height],
+    viewport:[window.innerWidth,window.innerHeight],
+    dpr:window.devicePixelRatio||1,
+    touch:'ontouchstart'in window,
+    tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
+    tzOff:new Date().getTimezoneOffset(),
+    connection:navigator.connection?{type:navigator.connection.effectiveType,downlink:navigator.connection.downlink}:null,
+    cookiesEnabled:navigator.cookieEnabled,
+    pdfSupport:navigator.pdfViewerEnabled??null,
+    cores:navigator.hardwareConcurrency||null,
+    memory:navigator.deviceMemory||null,
+  });
+
+  const recordQTime=useCallback(()=>{
+    if(currentQ&&qEnterRef.current){
+      const qId=currentQ.id;
+      const elapsed=Date.now()-qEnterRef.current;
+      if(!timingRef.current[qId])timingRef.current[qId]=0;
+      timingRef.current[qId]+=elapsed;
+    }
+    qEnterRef.current=Date.now();
+  },[currentQ]);
+
   const visibleQuestions=useMemo(()=>QUESTIONS.filter(q=>!q.showIf||q.showIf(answers)),[answers]);
   const currentQ=visibleQuestions[currentIdx];
   const currentSection=currentQ?SURVEY_SECTIONS.find(s=>s.id===currentQ.section):null;
@@ -1376,24 +1618,53 @@ function SurveyApp(){
   const [submitting,setSubmitting]=useState(false);
   const goNext=async()=>{
     if(!currentQ||submitting)return;
+    recordQTime();
+    // Required question must have an answer
+    if(currentQ.required){
+      const val=answers[currentQ.id];
+      const isEmpty=val==null||val===''||(Array.isArray(val)&&val.length===0)||(typeof val==='object'&&!Array.isArray(val)&&Object.keys(val).length===0);
+      if(isEmpty){setValidationErr('Пожалуйста, ответьте на этот вопрос — он обязателен для продолжения.');return}
+    }
     if(currentQ.terminateIf){
       const val=answers[currentQ.id];
       if(currentQ.terminateIf(val)){setTerminated(currentQ.terminateMsg||'Интервью завершено.');return}
     }
     if(currentQ.validate){const err=currentQ.validate(answers[currentQ.id],answers);if(err){setValidationErr(err);return}}
+    // Validate percentage_distribution: sum must equal totalCheck (or refused)
+    if(currentQ.type==='percentage_distribution'&&currentQ.totalCheck){
+      const val=answers[currentQ.id];
+      if(!val||!val._refused){
+        const vals=currentQ.rows.map(r=>{const v=val?.[r.key];return(v==null||v==='')?0:Number(v)});
+        const total=vals.reduce((s,v)=>s+v,0);
+        if(total!==currentQ.totalCheck){setValidationErr(`Сумма должна равняться ${currentQ.totalCheck}%. Сейчас: ${total}%. Если затрудняетесь — выберите соответствующий вариант ниже.`);return}
+      }
+    }
+    // Validate dual_percentage_distribution: each period sum must equal totalCheck (or refused)
+    if(currentQ.type==='dual_percentage_distribution'&&currentQ.totalCheck){
+      const val=answers[currentQ.id]||{};
+      for(let pi=0;pi<(currentQ.periods||[]).length;pi++){
+        const pK=`period_${pi}`;const pVal=val[pK]||{};
+        if(!pVal._refused){
+          const vals=currentQ.rows.map(r=>{const v=pVal[r.key];return(v==null||v==='')?0:Number(v)});
+          const total=vals.reduce((s,v)=>s+v,0);
+          if(total!==currentQ.totalCheck){setValidationErr(`${currentQ.periods[pi]}: сумма должна равняться ${currentQ.totalCheck}%. Сейчас: ${total}%.`);return}
+        }
+      }
+    }
     if(currentIdx<visibleQuestions.length-1){setCurrentIdx(currentIdx+1);setValidationErr(null);scrollTop()}
     else{
       setSubmitting(true);
       const finalAnswers={...answers,_autoDate:new Date().toISOString(),_format:'online'};
-      await saveResponse(finalAnswers,otherTexts);
+      const totalMs=surveyStartRef.current?Date.now()-surveyStartRef.current:0;
+      await saveResponse(finalAnswers,otherTexts,timingRef.current,metaRef.current,totalMs);
       setSubmitting(false);
       setCompleted(true);
     }
   };
-  const goPrev=()=>{if(currentIdx>0){setCurrentIdx(currentIdx-1);setValidationErr(null);scrollTop()}};
+  const goPrev=()=>{recordQTime();if(currentIdx>0){setCurrentIdx(currentIdx-1);setValidationErr(null);scrollTop()}};
   const restart=()=>{setAnswers({});setOtherTexts({});setCurrentIdx(0);setTerminated(null);setCompleted(false);setValidationErr(null);setConsented(false)};
 
-  if(!consented)return<ConsentScreen onAccept={()=>setConsented(true)}/>;
+  if(!consented)return<ConsentScreen onAccept={()=>{surveyStartRef.current=Date.now();qEnterRef.current=Date.now();metaRef.current=collectMeta();setConsented(true)}}/>;
 
   if(terminated)return(
     <div className="terminate-screen max-w-xl mx-auto mt-20 p-8 rounded-2xl border border-red-200 text-center">
@@ -1416,16 +1687,16 @@ function SurveyApp(){
               <h1 className="text-lg font-bold text-gray-800">Исследование промышленных предприятий</h1>
               <p className="text-xs text-gray-400">НИУ ВШЭ — ИАПР, 2026</p>
             </div>
-            {currentSection&&<span className="inline-block text-xs text-white px-3 py-1 rounded-full section-badge">{currentSection.title}</span>}
+            {/* section badge hidden from respondent */}
           </div>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 pt-6" ref={topRef}>
-        <ProgressBar current={currentIdx+1} total={visibleQuestions.length} sectionTitle={currentSection?.title}/>
+        <ProgressBar current={currentIdx+1} total={visibleQuestions.length}/>
 
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
-          <div className="mb-1 text-xs text-indigo-400 font-medium">{currentQ.id}</div>
+          {/* question ID hidden from respondent */}
           <h2 className="text-lg font-semibold text-gray-800 mb-2 leading-snug">{currentQ.text}</h2>
           {currentQ.hint&&<p className="text-sm text-gray-400 mb-4 italic">{currentQ.hint}</p>}
           <div className="mt-4">
@@ -1443,31 +1714,12 @@ function SurveyApp(){
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-1 justify-center">
-          {SURVEY_SECTIONS.map(s=>{
-            const sQs=visibleQuestions.filter(q=>q.section===s.id);if(!sQs.length)return null;
-            const fi=visibleQuestions.indexOf(sQs[0]),li=visibleQuestions.indexOf(sQs[sQs.length-1]);
-            const active=currentIdx>=fi&&currentIdx<=li,done=currentIdx>li;
-            return(<button key={s.id} onClick={()=>{if(fi<=currentIdx){setCurrentIdx(fi);scrollTop()}}}
-              className={`text-xs px-2 py-1 rounded-full border transition ${active?'bg-indigo-100 border-indigo-300 text-indigo-700 font-medium':done?'bg-green-50 border-green-200 text-green-600':'bg-gray-50 border-gray-200 text-gray-400'}`}
-              title={s.title}>{s.id==='meta'?'Мета':s.id==='screener'?'S':s.id}</button>);
-          })}
-        </div>
+        {/* section navigation removed — internal labels not shown to respondents */}
       </div>
     </div>);
 }
 
-// ============================================================
-// ROUTER: #admin shows admin panel, otherwise shows survey
-// ============================================================
-function App(){
-  const [page,setPage]=useState(window.location.hash);
-  useEffect(()=>{const h=()=>setPage(window.location.hash);window.addEventListener('hashchange',h);return()=>window.removeEventListener('hashchange',h)},[]);
-  if(page==='#admin')return<AdminPanel/>;
-  return<SurveyApp/>;
-}
-
-ReactDOM.render(<App/>,document.getElementById('root'));
+ReactDOM.render(<SurveyApp/>,document.getElementById('root'));
 </script>
 </body>
 </html>
